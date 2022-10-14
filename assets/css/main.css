@@ -193,7 +193,7 @@ input, select, textarea {
 	body, input, select, textarea {
 		color: #a0a0a1;
 		font-family: "Source Sans Pro", Helvetica, sans-serif;
-		font-size: 15pt;
+		font-size: 12pt;
 		font-weight: 300;
 		letter-spacing: 0.025em;
 		line-height: 1.65;
@@ -219,7 +219,7 @@ input, select, textarea {
 
 		a:hover {
 			border-bottom-color: transparent;
-			color: #34a58e !important;
+			color: #3088FF !important;
 		}
 
 	strong, b {
@@ -273,7 +273,7 @@ input, select, textarea {
 		font-size: 0.7em;
 	}
 
-	@media screen and (max-width: 736px) {
+	@media screen and (max-width: 480px) {
 
 		h2 {
 			font-size: 1em;
@@ -997,7 +997,7 @@ input, select, textarea {
 	}
 
 		table tbody tr {
-			border: solid 1px #36383c;
+			border: solid 1px #36383;
 			border-left: 0;
 			border-right: 0;
 		}
@@ -1349,8 +1349,8 @@ input, select, textarea {
 				display: none;
 			}
 
-			.poptrox-popup .caption {
-				display: none !important;
+			.poptrox-popup .caption p {
+				color: #ffffff;
 			}
 
 			.poptrox-popup .closer,
