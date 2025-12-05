@@ -1,0 +1,12 @@
+{
+  "name": "aldjan-portfolio",
+  "version": "1.0.0",
+  "description": "Aldin Jandric's Photography Portfolio",
+  "scripts": {
+    "build:css": "tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --minify",
+    "watch:css": "tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
+  }
+}
