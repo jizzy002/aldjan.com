@@ -44,6 +44,19 @@ body.lightbox-open {
     /* Adjusted aspect ratio for a more standard photograph look */
     aspect-ratio: 3/2; 
     object-fit: cover;
+    /* Dark mode: semi-transparent */
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+
+/* Light mode: keep thumbnails more visible */
+body.light-mode .thumb img {
+    opacity: 0.75;
+}
+
+/* Semi-transparent overlay for blur effect without performance impact */
+.thumb {
+    position: relative;
 }
 
 /* Lightbox/Gallery Styles */
