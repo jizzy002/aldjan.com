@@ -1,0 +1,25 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "aldjan-portfolio"
+type = "javascript"
+account_id = ""
+workers_dev = true
+route = ""
+zone_id = ""
+
+[env.production]
+name = "aldjan-portfolio-prod"
+route = "aldjan.com/*"
+zone_id = ""
+
+[build]
+command = "npm run build"
+cwd = "./dist"
+watch_paths = ["src/**/*.jsx", "src/**/*.css"]
+
+[build.upload]
+format = "service-worker"
+
+[env.development]
+
+[[triggers.crons]]
+cron = "0 0 * * *"
