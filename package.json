@@ -8,8 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "vite build && echo 'Build complete. Ready for Cloudflare Pages deployment.'",
-    "pages:build": "vite build && wrangler pages deploy dist"
+    "deploy": "vite build && echo 'Build complete. Ready for Cloudflare Pages deployment.'"
   },
   "dependencies": {
     "react": "^18.2.0",
