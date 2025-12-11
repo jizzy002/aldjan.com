@@ -5,6 +5,9 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
   const [index, setIndex] = useState(imageIndex);
   const item = GALLERY_ITEMS[index];
 
+  //Selfimplementation of touch events for mobile swipe support
+  const [touchStart, setTouchStart] = useState(null);
+
   const nextImage = () => setIndex((index + 1) % GALLERY_ITEMS.length);
   const prevImage = () => setIndex((index - 1 + GALLERY_ITEMS.length) % GALLERY_ITEMS.length);
 
@@ -12,6 +15,22 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
     if (e.key === 'ArrowRight') nextImage();
     else if (e.key === 'ArrowLeft') prevImage();
     else if (e.key === 'Escape') onClose();
+  };
+
+  const handleTouchStart = (e) => {
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStart === null) return;
+    const touchEnd = e.changedTouches[0].clientX;
+    const diff = touchStart - touchEnd;
+    
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) nextImage(); // swipe left = next
+      else prevImage(); // swipe right = prev
+    }
+    setTouchStart(null);
   };
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -32,6 +51,8 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
       }}
       onClick={onClose}
       onKeyDown={handleKeyDown}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       tabIndex={0}
       autoFocus
     >
@@ -96,49 +117,9 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
         
         <div style={{ marginTop: isMobile ? '12px' : '16px', color: isDark ? colors.textLight : '#ffffff', textAlign: 'center' }}>
           <h3 style={{ fontSize: isMobile ? '16px' : '18px', marginBottom: '0', margin: `0 0 ${isMobile ? '10px' : '12px'} 0`, color: isDark ? colors.textLight : '#ffffff' }}>{item.title}</h3>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: isMobile ? '12px' : '24px', flexWrap: 'wrap' }}>
-            <button
-              onClick={prevImage}
-              style={{
-                backgroundColor: isDark ? 'rgba(77, 200, 255, 0.1)' : 'rgba(255, 255, 255, 0.25)',
-                color: isDark ? colors.primary : '#ffffff',
-                border: isDark ? `1px solid ${colors.primary}` : '1px solid #ffffff',
-                width: isMobile ? '32px' : '36px',
-                height: isMobile ? '32px' : '36px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: isMobile ? '14px' : '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}
-            >
-              ◀
-            </button>
-            <span style={{ fontSize: isMobile ? '12px' : '14px', color: isDark ? colors.textMuted : '#cccccc', whiteSpace: isMobile ? 'normal' : 'nowrap' }}>
-              {item.exif}
-            </span>
-            <button
-              onClick={nextImage}
-              style={{
-                backgroundColor: isDark ? 'rgba(77, 200, 255, 0.1)' : 'rgba(255, 255, 255, 0.25)',
-                color: isDark ? colors.primary : '#ffffff',
-                border: isDark ? `1px solid ${colors.primary}` : '1px solid #ffffff',
-                width: isMobile ? '32px' : '36px',
-                height: isMobile ? '32px' : '36px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: isMobile ? '14px' : '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}
-            >
-              ▶
-            </button>
-          </div>
+          <p style={{ fontSize: isMobile ? '12px' : '14px', color: isDark ? colors.textMuted : '#cccccc', margin: 0 }}>
+            {item.exif}
+          </p>
         </div>
 
         {/* Counter */}
