@@ -63,6 +63,11 @@ const Footer = forwardRef(({ colors, isDark }, ref) => {
       }}
     >
       <style>{`
+        @media (max-width: 768px) {
+          footer {
+            padding: 30px 16px !important;
+          }
+        }
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
@@ -166,12 +171,30 @@ const Footer = forwardRef(({ colors, isDark }, ref) => {
           .footer-form div[style*="display: flex"] {
             flex-direction: column;
           }
+          
+          .footer-form button {
+            justify-content: center;
+          }
         }
         
         @media (max-width: 768px) {
           .footer-grid {
             grid-template-columns: 1fr !important;
             gap: 40px !important;
+            text-align: center;
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: 100% !important;
+          }
+          
+          .footer-grid > div {
+            margin: 0 auto !important;
+            width: 100% !important;
+            padding: 0 16px;
+          }
+          
+          .footer-grid div[style*="display: flex"] {
+            justify-content: center !important;
           }
         }
       `}</style>
@@ -242,7 +265,7 @@ const Footer = forwardRef(({ colors, isDark }, ref) => {
             Get in Touch
           </h2>
           <form onSubmit={handleSubmit} className="footer-form">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px', marginBottom: '16px' }}>
               <input
                 type="text"
                 name="name"
@@ -293,15 +316,13 @@ const Footer = forwardRef(({ colors, isDark }, ref) => {
                   e.target.style.boxShadow = 'none';
                 }}
               />
-            </div>
-            <div style={{ marginBottom: '16px' }}>
               <textarea
                 name="message"
                 placeholder="Your Message"
                 rows="5"
                 required
                 style={{
-                  width: '100%',
+                  gridColumn: '1 / -1',
                   padding: '12px 16px',
                   backgroundColor: 'transparent',
                   border: `1px solid ${colors.border}`,
@@ -323,7 +344,7 @@ const Footer = forwardRef(({ colors, isDark }, ref) => {
                 }}
               />
             </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
               <button
                 type="submit"
                 disabled={isLoading}

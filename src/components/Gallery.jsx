@@ -45,7 +45,7 @@ export default function Gallery({ onImageClick, colors, isDark }) {
               onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
             />
             <div style={{ padding: '16px' }}>
-              <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: colors.textLight }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px', color: colors.textLight }}>
                 {item.title}
               </h3>
               <p style={{ fontSize: '12px', color: colors.textMuted }}>

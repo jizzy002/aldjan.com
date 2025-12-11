@@ -35,6 +35,31 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
       tabIndex={0}
       autoFocus
     >
+      {/* Close Button - Top Level */}
+      <button
+        onClick={onClose}
+        style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          backgroundColor: isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.9)',
+          color: colors.primary,
+          border: isDark ? `1px solid ${colors.primary}` : '1px solid #ffffff',
+          fontSize: '24px',
+          cursor: 'pointer',
+          width: '36px',
+          height: '36px',
+          borderRadius: '4px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          lineHeight: '1',
+          padding: 0,
+          zIndex: 1001
+        }}
+      >
+        ✕
+      </button>
       <div
         style={{
           maxWidth: '900px',
@@ -65,31 +90,6 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
                 backgroundPosition: 'center'
               }}
             />
-            
-            {/* Controls - Positioned over image with padding */}
-            <button
-              onClick={onClose}
-              style={{
-                position: 'absolute',
-                top: '12px',
-                right: '12px',
-                backgroundColor: isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.9)',
-                color: colors.primary,
-                border: 'none',
-                fontSize: '24px',
-                cursor: 'pointer',
-                width: '36px',
-                height: '36px',
-                borderRadius: '4px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 1000,
-                padding: 0
-              }}
-            >
-              ✕
-            </button>
           </div>
         </div>
         
