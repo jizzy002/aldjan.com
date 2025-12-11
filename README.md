@@ -1,72 +1,59 @@
 # Aldin Jandric's Photography Portfolio
 
-## Setup Instructions
+A modern, responsive photography portfolio built with **React**, **Vite**, and **Cloudflare Pages**.
 
-This project uses Tailwind CSS for styling. Follow these steps to build and deploy:
+## Quick Start
 
 ### Prerequisites
-- Node.js (version 14 or higher)
-- npm (comes with Node.js)
+- Node.js 16+ (with npm)
+- Git
 
-### Initial Setup
+### Installation
 
-1. Install dependencies:
-```bash
-npm install
-```
+1. Clone and install:
+`npm install`
 
-2. Build the CSS for production:
-```bash
-npm run build:css
-```
+2. Start development server:
+`npm run dev`
 
-This will generate `assets/css/output.css` which is automatically included in `index.html`.
+3. Build for production:
+`npm run build`
 
-### Development
+## Features
 
-If you want to watch for changes and rebuild automatically:
-```bash
-npm run watch:css
-```
-
-### Build Output
-
-- **Input CSS**: `assets/css/input.css` (Tailwind directives)
-- **Output CSS**: `assets/css/output.css` (Compiled and minified, ready for production)
-
-The `output.css` file is what's served to browsers. It's minified and only includes the styles actually used in your HTML.
-
-### Deployment
-
-1. Ensure you've run `npm run build:css` to generate `assets/css/output.css`
-2. Commit `output.css` to your repository
-3. Deploy as usual - all CSS is self-contained in the output file
-
-### Why This Setup?
-
-- ✅ Removes CDN warning in production
-- ✅ CSS is minified (~50% smaller than CDN)
-- ✅ Faster page loads (no external dependency)
-- ✅ Full control over Tailwind configuration
-- ✅ Dead code elimination - only used styles are included
+- React 18 with hooks
+- Vite 5.4 for fast builds
+- Dark/Light Mode with localStorage
+- Responsive Design
+- Optimized Images with lazy loading
+- Interactive Lightbox Gallery
+- Contact Form with Formspree
+- SEO Ready
+- 52 kB gzipped bundle
 
 ## Project Structure
 
-```
-aldjan.com/
-├── index.html              # Main HTML file
-├── assets/
-│   ├── css/
-│   │   ├── input.css       # Tailwind input (with custom styles)
-│   │   ├── output.css      # Compiled CSS (included in HTML)
-│   │   ├── main.css
-│   │   └── ...
-│   ├── js/
-│   └── sass/
-├── images/
-│   ├── fulls/              # Full-size gallery images
-│   └── thumbs/             # Thumbnail gallery images
-├── package.json            # Dependencies and build scripts
-├── tailwind.config.js      # Tailwind configuration
-└── README.md
-```
+- src/ - React components and styles
+- public/ - Static assets
+- functions/ - Cloudflare Workers routing
+- index.html - Vite entry point
+- vite.config.js - Build config
+- wrangler.toml - Cloudflare Pages config
+
+## Deployment
+
+Deploy to Cloudflare Pages:
+1. Connect GitHub repo
+2. Build command: `npm run build`
+3. Publish directory: `dist`
+
+## Available Scripts
+
+- `npm run dev` - Development server
+- `npm run build` - Production build
+- `npm run preview` - Preview build locally
+
+## License
+
+Personal portfolio project. All photography copyright © Aldin Jandric.
+'@ | Set-Content -Path README.md -Encoding UTF8
