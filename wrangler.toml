@@ -1,0 +1,14 @@
+name = "aldjan-image-resizer"
+type = "javascript"
+account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"
+workers_dev = true
+routes = []
+zone_id = "YOUR_CLOUDFLARE_ZONE_ID"
+
+[build]
+command = "npm install"
+cwd = "./worker"
+
+[build.upload]
+format = "modules"
+main = "./src/index.js"
