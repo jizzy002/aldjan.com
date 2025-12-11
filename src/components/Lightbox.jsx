@@ -87,7 +87,7 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
           width: '100%',
           position: 'relative',
           margin: 'auto',
-          overflow: 'visible',
+          overflow: 'hidden',
           animation: 'slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
         onClick={(e) => e.stopPropagation()}
@@ -130,8 +130,25 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
           fontSize: isMobile ? '11px' : '12px'
         }}>
           {index + 1} / {GALLERY_ITEMS.length}
+          
         </div>
       </div>
+
+      {/* Swipe Gesture Hint - Mobile Only */}
+      {isMobile && (
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontSize: '12px',
+          color: isDark ? colors.textMuted : '#999999',
+          textAlign: 'center',
+          opacity: 0.7
+        }}>
+          Swipe to navigate
+        </div>
+      )}
     </div>
   );
 }
