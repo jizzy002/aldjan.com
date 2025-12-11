@@ -66,7 +66,7 @@ export default function Header({ onAboutClick, colors, isDark }) {
         marginTop: 0,
         marginBottom: 0
       }} className="header-container">
-        <h1 style={{ fontSize: '20px', fontWeight: '300', color: colors.textLight, whiteSpace: 'nowrap' }} className="header-title">
+        <h1 style={{ fontSize: '23px', fontWeight: '300', color: colors.textLight, whiteSpace: 'nowrap' }} className="header-title">
           <a 
             onClick={(e) => {
               e.preventDefault();

@@ -156,18 +156,32 @@ const Footer = forwardRef(({ colors, isDark }, ref) => {
         }
         
         @media (max-width: 768px) {
-          .footer-form button {
+          .footer-form div[style*="gridTemplateColumns"] {
+            grid-template-columns: 1fr !important;
+          }
+          .footer-form button,
+          .footer-form div[style*="display: flex"] {
             width: 100%;
+          }
+          .footer-form div[style*="display: flex"] {
+            flex-direction: column;
+          }
+        }
+        
+        @media (max-width: 768px) {
+          .footer-grid {
+            grid-template-columns: 1fr !important;
+            gap: 40px !important;
           }
         }
       `}</style>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px', alignItems: 'start' }}>
+      <div className="footer-grid" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px', alignItems: 'start', padding: '0 20px' }}>
         {/* Left Column - About Me */}
         <div>
-          <h2 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '24px', color: colors.textLight }}>
+          <h2 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '12px', color: colors.textLight }}>
             About Me
           </h2>
-          <p style={{ marginBottom: '24px', color: colors.textMuted, lineHeight: '1.8' }}>
+          <p style={{ fontSize: '15px', marginBottom: '24px', color: colors.textMuted, lineHeight: '1.8' }}>
             You're probably wondering how you found my website. You received it from someone, maybe you saw it on Google, or perhaps you were just intrigued about my photography and wanted to examine my collection and perhaps hire me to shoot some pictures of you? Anyways enjoy what you are looking at now!
           </p>
 
@@ -175,7 +189,7 @@ const Footer = forwardRef(({ colors, isDark }, ref) => {
             <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: colors.textLight }}>
               FIND ME ON:
             </h3>
-            <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
+            <div style={{ display: 'flex', gap: '24px', flexWrap: 'nowrap', justifyContent: 'flex-start', overflowX: 'auto' }}>
               {[
                 { name: 'Facebook', url: 'https://www.facebook.com/ald.jan01/', icon: 'fab fa-facebook-f' },
                 { name: 'Instagram', url: 'https://www.instagram.com/ald.jan/', icon: 'fab fa-instagram' },
@@ -216,46 +230,67 @@ const Footer = forwardRef(({ colors, isDark }, ref) => {
                 </a>
               ))}
             </div>
+            <div style={{ marginTop: '12px', paddingTop: '12px', color: colors.textMuted, fontSize: '15px' }}>
+              © 2025 aldjan.com
+            </div>
           </div>
         </div>
 
         {/* Right Column - Contact Form */}
         <div>
-          <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '24px', color: colors.textLight }}>
+          <h2 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '12px', color: colors.textLight }}>
             Get in Touch
-          </h3>
+          </h2>
           <form onSubmit={handleSubmit} className="footer-form">
-            <div style={{ marginBottom: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
               <input
                 type="text"
                 name="name"
                 placeholder="Your Name"
                 required
                 style={{
-                  width: '100%',
-                  padding: '12px',
-                  backgroundColor: colors.input,
+                  padding: '12px 16px',
+                  backgroundColor: 'transparent',
                   border: `1px solid ${colors.border}`,
-                  borderRadius: '4px',
-                  color: colors.textLight,
-                  fontFamily: 'inherit'
+                  borderRadius: '6px',
+                  color: isDark ? '#ffffff' : '#000000',
+                  fontFamily: 'inherit',
+                  fontSize: '14px',
+                  transition: 'all 0.3s ease',
+                  outline: 'none'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = colors.primary;
+                  e.target.style.boxShadow = `0 0 0 3px ${isDark ? 'rgba(77, 200, 255, 0.1)' : 'rgba(0, 153, 204, 0.1)'}`;
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = colors.border;
+                  e.target.style.boxShadow = 'none';
                 }}
               />
-            </div>
-            <div style={{ marginBottom: '16px' }}>
               <input
                 type="email"
                 name="email"
                 placeholder="Your Email"
                 required
                 style={{
-                  width: '100%',
-                  padding: '12px',
-                  backgroundColor: colors.input,
+                  padding: '12px 16px',
+                  backgroundColor: 'transparent',
                   border: `1px solid ${colors.border}`,
-                  borderRadius: '4px',
-                  color: colors.textLight,
-                  fontFamily: 'inherit'
+                  borderRadius: '6px',
+                  color: isDark ? '#ffffff' : '#000000',
+                  fontFamily: 'inherit',
+                  fontSize: '14px',
+                  transition: 'all 0.3s ease',
+                  outline: 'none'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = colors.primary;
+                  e.target.style.boxShadow = `0 0 0 3px ${isDark ? 'rgba(77, 200, 255, 0.1)' : 'rgba(0, 153, 204, 0.1)'}`;
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = colors.border;
+                  e.target.style.boxShadow = 'none';
                 }}
               />
             </div>
@@ -267,67 +302,104 @@ const Footer = forwardRef(({ colors, isDark }, ref) => {
                 required
                 style={{
                   width: '100%',
-                  padding: '12px',
-                  backgroundColor: colors.input,
+                  padding: '12px 16px',
+                  backgroundColor: 'transparent',
                   border: `1px solid ${colors.border}`,
-                  borderRadius: '4px',
-                  color: colors.textLight,
+                  borderRadius: '6px',
+                  color: isDark ? '#ffffff' : '#000000',
                   fontFamily: 'inherit',
-                  resize: 'vertical'
+                  fontSize: '14px',
+                  resize: 'vertical',
+                  transition: 'all 0.3s ease',
+                  outline: 'none'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = colors.primary;
+                  e.target.style.boxShadow = `0 0 0 3px ${isDark ? 'rgba(77, 200, 255, 0.1)' : 'rgba(0, 153, 204, 0.1)'}`;
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = colors.border;
+                  e.target.style.boxShadow = 'none';
                 }}
               />
             </div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              style={{
-                backgroundColor: showSuccess ? '#22c55e' : colors.primary,
-                color: isDark ? '#000000' : '#ffffff',
-                padding: '12px 24px',
-                border: 'none',
-                borderRadius: '4px',
-                fontWeight: '600',
-                cursor: isLoading || showSuccess ? 'not-allowed' : 'pointer',
-                opacity: isLoading ? 0.7 : 1,
-                transition: 'all 0.3s ease',
-                minHeight: '44px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
-            >
-              {isLoading ? (
-                <>
-                  <span className="loading-spinner">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </span>
-                </> 
-              ) : showSuccess ? (
-                <>
-                  <span className="success-text"> Message Sent!</span>
-                </>
-              ) : (
-                'Send Message'
-              )}
-            </button>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                type="submit"
+                disabled={isLoading}
+                style={{
+                  backgroundColor: showSuccess ? '#22c55e' : colors.primary,
+                  color: isDark ? '#000000' : '#ffffff',
+                  padding: '10px 20px',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontWeight: '600',
+                  cursor: isLoading || showSuccess ? 'not-allowed' : 'pointer',
+                  opacity: isLoading ? 0.7 : 1,
+                  transition: 'all 0.3s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  boxShadow: isDark ? 'none' : '0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06)'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isLoading && !showSuccess) {
+                    const hoverColor = isDark ? '#82e0ffff' : 'rgba(77, 200, 255, 0.9)';
+                    const hoverSuccessColor = isDark ? '#4ae876' : 'rgba(34, 197, 94, 0.9)';
+                    e.target.style.backgroundColor = showSuccess ? hoverSuccessColor : hoverColor;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = showSuccess ? '#22c55e' : colors.primary;
+                }}
+              >
+                {isLoading ? (
+                  <>
+                    <span className="loading-spinner">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </span>
+                  </> 
+                ) : showSuccess ? (
+                  <>
+                    <span className="success-text"> Message Sent!</span>
+                  </>
+                ) : (
+                  'Send Message'
+                )}
+              </button>
+              <button
+                type="reset"
+                style={{
+                  backgroundColor: colors.border,
+                  color: isDark ? '#ffffff' : '#000000',
+                  padding: '10px 20px',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: isDark ? 'none' : '0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06)'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = colors.border;
+                }}
+              >
+                Reset
+              </button>
+            </div>
           </form>
         </div>
-      </div>
-
-      <div style={{
-        marginTop: '40px',
-        paddingTop: '24px',
-        borderTop: `1px solid ${colors.border}`,
-        textAlign: 'center',
-        color: colors.textMuted,
-        fontSize: '12px'
-      }}>
-        © 2025 aldjan.com. All rights reserved.
       </div>
     </footer>
   );

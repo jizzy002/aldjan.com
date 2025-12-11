@@ -17,7 +17,7 @@ export const useTheme = () => {
       bg: '#121212',
       cardBg: '#1e1e1e',
       textLight: '#e0e0e0',
-      textMuted: '#888888',
+      textMuted: '#9ca3af',
       border: '#333333',
       primary: '#4dc8ff',
       input: '#222222'
