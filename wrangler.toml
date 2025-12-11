@@ -1,8 +1,0 @@
-name = "aldjan-image-resizer"
-main = "src/index.js"
-compatibility_date = "2025-12-11"
-account_id = "32e331ef201de47f3852da611735fb56"
-
-[[routes]]
-pattern = "aldjan.com/cdn-cgi/image/*"
-zone_id = "3af97640292b72245344c20c3a989d93"
