@@ -73,8 +73,36 @@ export const GALLERY_ITEMS = [
   }
 ];
 
-export const getThumbUrl = (imgur) => `https://i.imgur.com/${imgur}.jpeg?w=400&h=300&fit=crop&q=40`;
-export const getLightboxUrl = (imgur) => `https://i.imgur.com/${imgur}.jpeg?w=1200&q=70`;
-export const getThumbSrcSet = (imgur) => `https://i.imgur.com/${imgur}.jpeg?w=180&h=135&fit=crop&q=30 180w, https://i.imgur.com/${imgur}.jpeg?w=400&h=300&fit=crop&q=40 400w`;
-export const getLightboxSrcSet = (imgur) => `https://i.imgur.com/${imgur}.jpeg?w=800&q=65 800w, https://i.imgur.com/${imgur}.jpeg?w=1200&q=70 1200w`;
-export const getPlaceholderUrl = (imgur) => `https://i.imgur.com/${imgur}.jpeg?w=20&h=15&fit=crop&q=10`;
+// Cloudflare Image Transformation helper
+const cfTransform = (url, options) => {
+  const params = new URLSearchParams(options);
+  return `https://aldjan.com/cdn-cgi/image/${params.toString()}/${url}`;
+};
+
+export const getThumbUrl = (imgur) => {
+  const imgurUrl = `https://i.imgur.com/${imgur}.jpeg`;
+  return cfTransform(imgurUrl, { width: 400, height: 300, fit: 'crop', quality: 75, format: 'webp' });
+};
+
+export const getLightboxUrl = (imgur) => {
+  const imgurUrl = `https://i.imgur.com/${imgur}.jpeg`;
+  return cfTransform(imgurUrl, { width: 1200, quality: 80, format: 'webp' });
+};
+
+export const getThumbSrcSet = (imgur) => {
+  const imgurUrl = `https://i.imgur.com/${imgur}.jpeg`;
+  const thumb180 = cfTransform(imgurUrl, { width: 180, height: 135, fit: 'crop', quality: 70, format: 'webp' });
+  const thumb400 = cfTransform(imgurUrl, { width: 400, height: 300, fit: 'crop', quality: 75, format: 'webp' });
+  return `${thumb180} 180w, ${thumb400} 400w`;
+};
+
+export const getLightboxSrcSet = (imgur) => {
+  const imgurUrl = `https://i.imgur.com/${imgur}.jpeg`;
+  const light800 = cfTransform(imgurUrl, { width: 800, quality: 80, format: 'webp' });
+  const light1200 = cfTransform(imgurUrl, { width: 1200, quality: 85, format: 'webp' });
+  return `${light800} 800w, ${light1200} 1200w`;
+};
+
+export const getPlaceholderUrl = (imgur) => {
+  const imgurUrl = `https://i.imgur.com/${imgur}.jpeg`;
+  return cfTransform(imgurUrl, { width: 20, height: 15, fit: 'crop', quality: 50, format: 'webp' });};
