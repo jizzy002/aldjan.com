@@ -75,6 +75,13 @@ export const GALLERY_ITEMS = [
 
 // Cloudflare Image Transformation helper
 const cfTransform = (url, options) => {
+  // Only use Cloudflare transformations on production domain
+  const isProduction = typeof window !== 'undefined' && window.location.hostname === 'aldjan.com';
+  
+  if (!isProduction) {
+    return url; // Return direct Imgur URL on dev/localhost
+  }
+  
   const params = new URLSearchParams(options);
   return `https://aldjan.com/cdn-cgi/image/${params.toString()}/${url}`;
 };
