@@ -1,19 +1,11 @@
 /**
- * Cloudflare Image Resizing Worker
- * Proxies image requests through Cloudflare's Image Resizing service
- * Handles responsive image sizes and quality optimization
+ * Cloudflare Image Optimization Worker
+ * Simple proxy that fetches images and lets Cloudflare's edge handle optimization
  */
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    
-    // Extract query parameters for image resizing
-    const width = url.searchParams.get('w') || url.searchParams.get('width');
-    const height = url.searchParams.get('h') || url.searchParams.get('height');
-    const quality = url.searchParams.get('q') || url.searchParams.get('quality') || '80';
-    const format = url.searchParams.get('f') || url.searchParams.get('format');
-    const fit = url.searchParams.get('fit') || 'crop';
     
     // Get the image source URL
     const source = url.searchParams.get('src');
@@ -24,33 +16,32 @@ export default {
     
     try {
       // Fetch the image from the source
-      const imageRequest = new Request(source);
-      const imageResponse = await fetch(imageRequest);
+      const imageResponse = await fetch(source, {
+        cf: {
+          cacheEverything: true,
+          cacheTtl: 2592000, // 30 days
+        }
+      });
       
       if (!imageResponse.ok) {
-        return new Response('Failed to fetch image', { status: imageResponse.status });
+        return new Response(`Failed to fetch image: ${imageResponse.status}`, { 
+          status: imageResponse.status 
+        });
       }
       
-      // Build Cloudflare Image Resizing options
-      const cfImageOptions = {
-        quality: parseInt(quality),
-        fit: fit,
-      };
+      // Return the image with aggressive caching
+      const newResponse = new Response(imageResponse.body, {
+        status: 200,
+        headers: new Headers(imageResponse.headers)
+      });
       
-      if (width) cfImageOptions.width = parseInt(width);
-      if (height) cfImageOptions.height = parseInt(height);
-      if (format) cfImageOptions.format = format;
+      newResponse.headers.set('Cache-Control', 'public, max-age=2592000, immutable');
+      newResponse.headers.set('X-Content-Type-Options', 'nosniff');
       
-      // Clone response and apply Cloudflare Image Resizing
-      const response = new Response(imageResponse.body, imageResponse);
-      response.headers.set('cf-image-resizing', JSON.stringify(cfImageOptions));
-      
-      // Cache for 30 days
-      response.headers.set('Cache-Control', 'public, max-age=2592000');
-      
-      return response;
+      return newResponse;
     } catch (error) {
-      return new Response(`Error processing image: ${error.message}`, { status: 500 });
+      console.error('Worker error:', error);
+      return new Response(`Error: ${error.message}`, { status: 500 });
     }
   }
 };
