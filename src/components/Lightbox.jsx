@@ -77,6 +77,7 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
             <img
               src={getLightboxUrl(item.imgur)}
               srcSet={getLightboxSrcSet(item.imgur)}
+              sizes="(max-width: 768px) 100vw, 900px"
               alt={item.title}
               style={{
                 maxWidth: '100%',

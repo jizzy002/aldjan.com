@@ -73,43 +73,32 @@ export const GALLERY_ITEMS = [
   }
 ];
 
-// Cloudflare Image Transformation helper
-const cfTransform = (url, options) => {
-  // Only use Cloudflare transformations on production domain
-  const isProduction = typeof window !== 'undefined' && window.location.hostname === 'aldjan.com';
-  
-  if (!isProduction) {
-    return url; // Return direct Imgur URL on dev/localhost
-  }
-  
+// Sirv Image Optimization helper
+const sirvTransform = (imgur, options) => {
   const params = new URLSearchParams(options);
-  return `https://aldjan.com/cdn-cgi/image/${params.toString()}/${url}`;
+  return `https://aldjan.sirv.com/Website%20Images/${imgur}.jpeg?${params.toString()}`;
 };
 
 export const getThumbUrl = (imgur) => {
-  const imgurUrl = `https://i.imgur.com/${imgur}.jpeg`;
-  return cfTransform(imgurUrl, { width: 400, height: 300, fit: 'crop', quality: 75, format: 'webp' });
+  return sirvTransform(imgur, { w: 400, h: 300, q: 70 });
 };
 
 export const getLightboxUrl = (imgur) => {
-  const imgurUrl = `https://i.imgur.com/${imgur}.jpeg`;
-  return cfTransform(imgurUrl, { width: 1200, quality: 80, format: 'webp' });
+  return sirvTransform(imgur, { w: 1200, q: 80 });
 };
 
 export const getThumbSrcSet = (imgur) => {
-  const imgurUrl = `https://i.imgur.com/${imgur}.jpeg`;
-  const thumb180 = cfTransform(imgurUrl, { width: 180, height: 135, fit: 'crop', quality: 70, format: 'webp' });
-  const thumb400 = cfTransform(imgurUrl, { width: 400, height: 300, fit: 'crop', quality: 75, format: 'webp' });
+  const thumb180 = sirvTransform(imgur, { w: 180, h: 135, q: 70 });
+  const thumb400 = sirvTransform(imgur, { w: 400, h: 300, q: 70 });
   return `${thumb180} 180w, ${thumb400} 400w`;
 };
 
 export const getLightboxSrcSet = (imgur) => {
-  const imgurUrl = `https://i.imgur.com/${imgur}.jpeg`;
-  const light800 = cfTransform(imgurUrl, { width: 800, quality: 80, format: 'webp' });
-  const light1200 = cfTransform(imgurUrl, { width: 1200, quality: 85, format: 'webp' });
+  const light800 = sirvTransform(imgur, { w: 800, q: 80 });
+  const light1200 = sirvTransform(imgur, { w: 1200, q: 80 });
   return `${light800} 800w, ${light1200} 1200w`;
 };
 
 export const getPlaceholderUrl = (imgur) => {
-  const imgurUrl = `https://i.imgur.com/${imgur}.jpeg`;
-  return cfTransform(imgurUrl, { width: 20, height: 15, fit: 'crop', quality: 50, format: 'webp' });};
+  return sirvTransform(imgur, { w: 20, h: 15, q: 50 });
+};
