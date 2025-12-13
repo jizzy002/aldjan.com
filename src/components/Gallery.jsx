@@ -32,6 +32,7 @@ export default function Gallery({ onImageClick, colors, isDark }) {
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               alt={item.title}
               loading={item.id === 1 ? 'eager' : 'lazy'}
+              onContextMenu={(e) => e.preventDefault()}
               style={{
                 width: '100%',
                 height: '200px',

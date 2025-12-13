@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GALLERY_ITEMS, getLightboxUrl, getLightboxSrcSet, getPlaceholderUrl } from '../data';
 
 export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
@@ -12,10 +12,25 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
   const prevImage = () => setIndex((index - 1 + GALLERY_ITEMS.length) % GALLERY_ITEMS.length);
 
   const handleKeyDown = (e) => {
-    if (e.key === 'ArrowRight') nextImage();
-    else if (e.key === 'ArrowLeft') prevImage();
-    else if (e.key === 'Escape') onClose();
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      nextImage();
+    }
+    else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      prevImage();
+    }
+    else if (e.key === 'Escape') {
+      e.preventDefault();
+      onClose();
+    }
   };
+
+  // Add global keyboard listener
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [index]);
 
   const handleTouchStart = (e) => {
     setTouchStart(e.touches[0].clientX);
@@ -63,7 +78,7 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
           position: 'fixed',
           top: '20px',
           right: '20px',
-          backgroundColor: isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.9)',
+          backgroundColor: isDark ? 'rgba(0, 0, 0, 0)' : 'rgba(255, 255, 255, 0)',
           color: colors.primary,
           border: isDark ? `1px solid ${colors.primary}` : '1px solid #ffffff',
           fontSize: '24px',
@@ -76,9 +91,16 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
           justifyContent: 'center',
           lineHeight: '1',
           padding: 0,
-          zIndex: 1001
+          zIndex: 1001,
+          transition: 'all 0.2s ease'
         }}
-      >
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = isDark ? 'rgba(0, 0, 0, 1)' : 'rgba(255, 255, 255, 1)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = isDark ? 'rgba(0, 0, 0, 0)' : 'rgba(255, 255, 255, 0)';
+        }}
+      >     
         ✕
       </button>
       <div
@@ -91,19 +113,54 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
           animation: 'slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
         onClick={(e) => e.stopPropagation()}
+        
       >
         {/* Image Container */}
-        <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', width: '100%' }}>
+        <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', width: '100%', alignItems: 'center', gap: '20px' }}>
+          {/* Prev Button - Desktop Only */}
+          {!isMobile && (
+            <button
+              onClick={prevImage}
+              style={{
+                backgroundColor: isDark ? 'rgba(0, 0, 0, 0)' : 'rgba(255, 255, 255, 0)',
+                color: colors.primary,
+                border: isDark ? `1px solid ${colors.primary}` : '1px solid #ffffff',
+                fontSize: '24px',
+                cursor: 'pointer',
+                width: '36px',
+                height: '36px',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: '1',
+                padding: 0,
+                zIndex: 500,
+                transition: 'all 0.2s ease',
+                flexShrink: 0
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = isDark ? 'rgba(0, 0, 0, 1)' : 'rgba(255, 255, 255, 1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = isDark ? 'rgba(0, 0, 0, 0)' : 'rgba(255, 255, 255, 0)';
+              }}
+            >
+              ◀
+            </button>
+          )}
+
           <div style={{ position: 'relative', display: 'inline-block' }}>
             <img
               src={getLightboxUrl(item.imgur)}
               srcSet={getLightboxSrcSet(item.imgur)}
               sizes="(max-width: 768px) 100vw, 900px"
               alt={item.title}
+              onContextMenu={(e) => e.preventDefault()}
               style={{
                 maxWidth: '100%',
                 height: 'auto',
-                maxHeight: '70vh',
+                maxHeight: '82vh',
                 objectFit: 'contain',
                 borderRadius: '8px',
                 display: 'block',
@@ -113,6 +170,39 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
               }}
             />
           </div>
+
+          {/* Next Button - Desktop Only */}
+          {!isMobile && (
+            <button
+              onClick={nextImage}
+              style={{
+                backgroundColor: isDark ? 'rgba(0, 0, 0, 0)' : 'rgba(255, 255, 255, 0)',
+                color: colors.primary,
+                border: isDark ? `1px solid ${colors.primary}` : '1px solid #ffffff',
+                fontSize: '24px',
+                cursor: 'pointer',
+                width: '36px',
+                height: '36px',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: '1',
+                padding: 0,
+                zIndex: 500,
+                transition: 'all 0.2s ease',
+                flexShrink: 0
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = isDark ? 'rgba(0, 0, 0, 1)' : 'rgba(255, 255, 255, 1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = isDark ? 'rgba(0, 0, 0, 0)' : 'rgba(255, 255, 255, 0)';
+              }}
+            >
+              ▶
+            </button>
+          )}
         </div>
         
         <div style={{ marginTop: isMobile ? '12px' : '16px', color: isDark ? colors.textLight : '#ffffff', textAlign: 'center' }}>
