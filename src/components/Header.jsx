@@ -81,7 +81,7 @@ export default function Header({ onAboutClick, colors, isDark }) {
             onMouseEnter={() => setTitleHovered(true)}
             onMouseLeave={() => setTitleHovered(false)}
           >
-            <strong style={{ fontWeight: 'bold' }}>Aldin Jandric's</strong> Portfolio
+            <strong style={{ fontWeight: 'bold' }}>Aldin Jandric's</strong> Homepage
           </a>
         </h1>
         <button

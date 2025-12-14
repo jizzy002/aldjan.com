@@ -218,7 +218,8 @@ const Footer = forwardRef(({ colors, isDark }, ref) => {
                 { name: 'Instagram', url: 'https://www.instagram.com/ald.jan/', icon: 'fab fa-instagram' },
                 { name: 'Twitter', url: 'https://twitter.com/ald__jan', icon: 'fab fa-twitter' },
                 { name: 'Snapchat', url: 'https://www.snapchat.com/add/ald_jan', icon: 'fab fa-snapchat-ghost' },
-                { name: 'Telegram', url: 'https://t.me/jizzy002', icon: 'fab fa-telegram-plane' }
+                { name: 'Telegram', url: 'https://t.me/jizzy002', icon: 'fab fa-telegram-plane' },
+                { name: 'LinkedIn', url: 'https://www.linkedin.com/in/aldin-jandri%C4%87-559aa3ab/', icon: 'fab fa-linkedin' }
               ].map((social, index) => (
                 <a
                   key={social.name}
@@ -236,7 +237,6 @@ const Footer = forwardRef(({ colors, isDark }, ref) => {
                     height: '40px',
                     borderRadius: '50%',
                     backgroundColor: isDark ? 'rgba(77, 200, 255, 0.1)' : 'rgba(0, 153, 204, 0.1)',
-                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     animation: `slideInUp 0.5s ease-out ${index * 0.1}s both`
                   }}
                   onMouseEnter={(e) => {

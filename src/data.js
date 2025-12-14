@@ -80,7 +80,7 @@ const sirvTransform = (imgur, options) => {
 };
 
 export const getThumbUrl = (imgur) => {
-  return sirvTransform(imgur, { w: 1280, q: 80 });
+  return sirvTransform(imgur, { w: 1280, q: 90 });
 };
 
 export const getLightboxUrl = (imgur) => {
@@ -88,9 +88,9 @@ export const getLightboxUrl = (imgur) => {
 };
 
 export const getThumbSrcSet = (imgur) => {
-  const thumb320 = sirvTransform(imgur, { w: 320, q: 80 });
-  const thumb640 = sirvTransform(imgur, { w: 640, q: 80 });
-  const thumb1280 = sirvTransform(imgur, { w: 1280, q: 80 });
+  const thumb320 = sirvTransform(imgur, { w: 320, q: 90 });
+  const thumb640 = sirvTransform(imgur, { w: 640, q: 90 });
+  const thumb1280 = sirvTransform(imgur, { w: 1280, q: 90 });
   return `${thumb320} 320w, ${thumb640} 640w, ${thumb1280} 1280w`;
 };
 

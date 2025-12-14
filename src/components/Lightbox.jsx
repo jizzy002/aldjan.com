@@ -3,6 +3,7 @@ import { GALLERY_ITEMS, getLightboxUrl, getLightboxSrcSet, getPlaceholderUrl } f
 
 export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
   const [index, setIndex] = useState(imageIndex);
+  const [isClosing, setIsClosing] = useState(false);
   const item = GALLERY_ITEMS[index];
 
   //Selfimplementation of touch events for mobile swipe support
@@ -24,8 +25,15 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
     }
     else if (e.key === 'Escape') {
       e.preventDefault();
-      onClose();
+      handleClose();
     }
+  };
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 300);
   };
 
   // Add global keyboard listener
@@ -98,9 +106,9 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
         justifyContent: 'center',
         padding: isMobile ? '12px' : '20px',
         overflowY: 'auto',
-        animation: 'fadeIn 0.3s ease-out'
+        animation: isClosing ? 'fadeOutOnly 0.3s ease-out' : 'fadeIn 0.3s ease-out'
       }}
-      onClick={onClose}
+      onClick={handleClose}
       onKeyDown={handleKeyDown}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -110,7 +118,7 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
     >
       {/* Close Button - Top Level */}
       <button
-        onClick={onClose}
+        onClick={handleClose}
         style={{
           position: 'fixed',
           top: '20px',
@@ -147,7 +155,7 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
           position: 'relative',
           margin: 'auto',
           overflow: 'hidden',
-          animation: 'slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+          animation: isClosing ? 'slideOutDown 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
         onClick={(e) => e.stopPropagation()}
         
