@@ -10,7 +10,6 @@ export default function FloatingLastFm({ colors, isDark }) {
   });
   const [isPlaying, setIsPlaying] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTrack = async () => {
@@ -19,8 +18,6 @@ export default function FloatingLastFm({ colors, isDark }) {
         const username = import.meta.env.VITE_LASTFM_USERNAME;
 
         if (!apiKey || !username) {
-          console.warn('Last.fm API key or username not configured');
-          setLoading(false);
           return;
         }
 
@@ -35,8 +32,6 @@ export default function FloatingLastFm({ colors, isDark }) {
         const data = await response.json();
 
         if (data.error) {
-          console.error('Last.fm API error:', data.message);
-          setLoading(false);
           return;
         }
 
@@ -83,14 +78,12 @@ export default function FloatingLastFm({ colors, isDark }) {
           setIsPlaying(trackData['@attr']?.nowplaying === 'true');
         }
       } catch (error) {
-        console.error('Error fetching Last.fm data:', error);
-      } finally {
-        setLoading(false);
+        // Silent fail - widget shows default state
       }
     };
 
     fetchTrack();
-    const interval = setInterval(fetchTrack, 30000);
+    const interval = setInterval(fetchTrack, 15000);
     return () => clearInterval(interval);
   }, []);
 
@@ -185,7 +178,7 @@ export default function FloatingLastFm({ colors, isDark }) {
           transition: 'all 0.3s ease',
           boxShadow: isDark
             ? `0 8px 16px rgba(0, 0, 0, 0.3), inset 0 0 20px ${colors.primary}20`
-            : `0 8px 16px rgba(0, 0, 0, 0.1), inset 0 0 20px ${colors.primary}10`,
+            : `0 4px 16px rgba(0, 0, 0, 0.15), inset 0 0 20px ${colors.primary}10`,
           ...(isPlaying && {
             animation: 'pulse-ring 2s infinite'
           })
@@ -271,7 +264,10 @@ export default function FloatingLastFm({ colors, isDark }) {
             borderRadius: '12px',
             overflow: 'hidden',
             marginBottom: '16px',
-            backgroundColor: colors.border
+            backgroundColor: colors.border,
+            boxShadow: isDark
+              ? '0 8px 16px rgba(0, 0, 0, 0.3)'
+              : '0 4px 16px rgba(0, 0, 0, 0.15)'
           }}>
             <img
               src={track.image}
@@ -294,7 +290,7 @@ export default function FloatingLastFm({ colors, isDark }) {
               letterSpacing: '0.5px',
               fontWeight: '600'
             }}>
-              {isPlaying ? 'Now Playing' : 'Last Played'}
+              {isPlaying ? 'Whats Playing' : 'Last Played'}
             </div>
 
             <h3 style={{
