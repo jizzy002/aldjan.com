@@ -4,6 +4,7 @@ import Header from './components/Header';
 import Gallery from './components/Gallery';
 import Footer from './components/Footer';
 import ThemeToggle from './components/ThemeToggle';
+import FloatingLastFm from './components/FloatingLastFm';
 import Lightbox from './components/Lightbox';
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
       <Gallery onImageClick={setCurrentImageIndex} colors={colors} isDark={isDark} />
       <Footer ref={footerRef} colors={colors} isDark={isDark} />
       <ThemeToggle isDark={isDark} setIsDark={setIsDark} />
+      <FloatingLastFm colors={colors} isDark={isDark} />
       {currentImageIndex !== null && (
         <Lightbox imageIndex={currentImageIndex} onClose={() => setCurrentImageIndex(null)} colors={colors} isDark={isDark} />
       )}

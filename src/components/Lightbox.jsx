@@ -7,6 +7,8 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
 
   //Selfimplementation of touch events for mobile swipe support
   const [touchStart, setTouchStart] = useState(null);
+  const [touchStartY, setTouchStartY] = useState(null);
+  const [swipeTrail, setSwipeTrail] = useState([]);
 
   const nextImage = () => setIndex((index + 1) % GALLERY_ITEMS.length);
   const prevImage = () => setIndex((index - 1 + GALLERY_ITEMS.length) % GALLERY_ITEMS.length);
@@ -29,11 +31,37 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
   // Add global keyboard listener
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    // Disable page scroll when lightbox is open
+    document.body.style.overflow = 'hidden';
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
   }, [index]);
 
   const handleTouchStart = (e) => {
     setTouchStart(e.touches[0].clientX);
+    setTouchStartY(e.touches[0].clientY);
+    setSwipeTrail([]);
+  };
+
+  const handleTouchMove = (e) => {
+    if (touchStart === null || touchStartY === null) return;
+    
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    
+    // Create a new particle at current position
+    setSwipeTrail((prev) => {
+      const newTrail = [...prev, {
+        id: Date.now() + Math.random(),
+        x: currentX,
+        y: currentY
+      }];
+      // Keep only last 15 particles for performance
+      return newTrail.slice(-15);
+    });
   };
 
   const handleTouchEnd = (e) => {
@@ -42,10 +70,18 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
     const diff = touchStart - touchEnd;
     
     if (Math.abs(diff) > 50) {
-      if (diff > 0) nextImage(); // swipe left = next
-      else prevImage(); // swipe right = prev
+      if (diff > 0) {
+        nextImage(); // swipe left = next
+      }
+      else {
+        prevImage(); // swipe right = prev
+      }
     }
+    
+    // Fade out trail
+    setTimeout(() => setSwipeTrail([]), 300);
     setTouchStart(null);
+    setTouchStartY(null);
   };
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -67,6 +103,7 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
       onClick={onClose}
       onKeyDown={handleKeyDown}
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       tabIndex={0}
       autoFocus
@@ -239,6 +276,26 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
           Swipe to navigate
         </div>
       )}
+
+      {/* Swipe Trail Particles */}
+      {isMobile && swipeTrail.map((particle) => (
+        <div
+          key={particle.id}
+          style={{
+            position: 'fixed',
+            left: particle.x,
+            top: particle.y,
+            width: '12px',
+            height: '12px',
+            borderRadius: '50%',
+            backgroundColor: colors.primary,
+            pointerEvents: 'none',
+            animation: 'fadeOut 0.6s ease-out forwards',
+            boxShadow: `0 0 8px ${colors.primary}`,
+            zIndex: 999
+          }}
+        />
+      ))}
     </div>
   );
 }
