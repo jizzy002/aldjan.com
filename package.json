@@ -19,6 +19,6 @@
     "@vitejs/plugin-react": "^4.3.4",
     "terser": "^5.44.1",
     "vite": "^5.4.21",
-    "wrangler": "^3.114.15"
+    "wrangler": "^3.114.17"
   }
 }
