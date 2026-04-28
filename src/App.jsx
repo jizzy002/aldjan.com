@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import ThemeToggle from './components/ThemeToggle';
 import FloatingLastFm from './components/FloatingLastFm';
 import Lightbox from './components/Lightbox';
+import AnimatedBackground from './components/AnimatedBackground';
 
 export default function App() {
   const [currentImageIndex, setCurrentImageIndex] = useState(null);
@@ -20,6 +21,7 @@ export default function App() {
 
   return (
     <div style={{ backgroundColor: colors.bg, color: colors.textLight, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <AnimatedBackground isDark={isDark} />
       <Header onAboutClick={handleScrollToFooter} colors={colors} isDark={isDark} />
       <Gallery onImageClick={setCurrentImageIndex} colors={colors} isDark={isDark} />
       <Footer ref={footerRef} colors={colors} isDark={isDark} />

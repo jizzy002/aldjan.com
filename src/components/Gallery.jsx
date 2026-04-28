@@ -1,9 +1,13 @@
 import { GALLERY_ITEMS, getThumbUrl, getThumbSrcSet, getPlaceholderUrl } from '../data';
+import RainEffect from './RainEffect';
 
 export default function Gallery({ onImageClick, colors, isDark }) {
   return (
-    <main style={{ flex: 1, backgroundColor: colors.bg }}>
-      <div className="gallery-grid">
+    <main style={{ flex: 1, backgroundColor: colors.bg, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1, pointerEvents: 'none' }}>
+        <RainEffect isDark={isDark} />
+      </div>
+      <div className="gallery-grid" style={{ position: 'relative', zIndex: 2 }}>
         {GALLERY_ITEMS.map((item, index) => (
           <div
             key={item.id}
