@@ -19,7 +19,7 @@ export default function App() {
   };
 
   return (
-    <div style={{ backgroundColor: colors.bg, color: colors.textLight, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ backgroundColor: colors.bg, color: colors.textLight, minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%', overflow: 'hidden' }}>
       <Header onAboutClick={handleScrollToFooter} colors={colors} isDark={isDark} />
       <Gallery onImageClick={setCurrentImageIndex} colors={colors} isDark={isDark} />
       <Footer ref={footerRef} colors={colors} isDark={isDark} />

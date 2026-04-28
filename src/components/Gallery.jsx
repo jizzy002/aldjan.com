@@ -2,7 +2,7 @@ import { GALLERY_ITEMS, getThumbUrl, getThumbSrcSet, getPlaceholderUrl } from '.
 
 export default function Gallery({ onImageClick, colors, isDark }) {
   return (
-    <main style={{ flex: 1, backgroundColor: colors.bg }}>
+    <main style={{ flex: 1, backgroundColor: colors.bg, width: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
       <div className="gallery-grid">
         {GALLERY_ITEMS.map((item, index) => (
           <div

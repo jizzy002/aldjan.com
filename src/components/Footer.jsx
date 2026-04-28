@@ -59,7 +59,9 @@ const Footer = forwardRef(({ colors, isDark }, ref) => {
         backgroundColor: colors.cardBg,
         padding: '60px 40px',
         borderTop: `1px solid ${colors.border}`,
-        marginTop: 'auto'
+        marginTop: 'auto',
+        width: '100%',
+        boxSizing: 'border-box'
       }}
     >
       <style>{`

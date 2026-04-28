@@ -21,12 +21,14 @@ export default function ThemeToggle({ isDark, setIsDark }) {
           align-items: center;
           justify-content: center;
           transition: all 0.4s ease;
+          pointer-events: none;
         }
 
         .theme-switch {
           position: fixed;
           bottom: 24px;
           right: 24px;
+          pointer-events: all;
           width: 50px;
           height: 28px;
           border-radius: 14px;
