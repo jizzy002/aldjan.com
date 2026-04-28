@@ -53,22 +53,20 @@ export default function Header({ onAboutClick, colors, isDark }) {
       `}</style>
       <header style={{
         backgroundColor: colors.cardBg,
-        padding: 'clamp(8px, 1.5vw, 16px)',
+        padding: '16px 32px',
         position: 'sticky',
         top: 0,
-        zIndex: 998,
+        zIndex: 100,
         borderBottom: `1px solid ${colors.border}`,
         display: 'flex',
         alignItems: 'center',
         borderRadius: '0 0 12px 12px',
-        marginLeft: 1,
-        marginRight: 1,
+        marginLeft: 0,
+        marginRight: 0,
         marginTop: 0,
-        marginBottom: 0,
-        width: '100%',
-        boxSizing: 'border-box'
+        marginBottom: 0
       }} className="header-container">
-        <h1 style={{ fontSize: '22px', fontWeight: '300', color: colors.textLight, whiteSpace: 'nowrap' }} className="header-title">
+        <h1 style={{ fontSize: '23px', fontWeight: '300', color: colors.textLight, whiteSpace: 'nowrap' }} className="header-title">
           <a 
             onClick={(e) => {
               e.preventDefault();
@@ -95,7 +93,7 @@ export default function Header({ onAboutClick, colors, isDark }) {
             border: `1px solid ${colors.primary}`,
             fontSize: '16px',
             cursor: 'pointer',
-            padding: '10px 16px',
+            padding: '8px 18px',
             borderRadius: '8px',
             whiteSpace: 'nowrap',
             fontWeight: '500'

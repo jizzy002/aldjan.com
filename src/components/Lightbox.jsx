@@ -106,7 +106,6 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
         justifyContent: 'center',
         padding: isMobile ? '12px' : '20px',
         overflowY: 'auto',
-        overflowX: 'hidden',
         animation: isClosing ? 'fadeOutOnly 0.3s ease-out' : 'fadeIn 0.3s ease-out'
       }}
       onClick={handleClose}
