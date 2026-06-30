@@ -16,9 +16,9 @@
     "react-markdown": "^10.1.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-react": "^6.0.3",
     "terser": "^5.44.1",
-    "vite": "^5.4.21",
+    "vite": "^8.1.0",
     "wrangler": "^3.114.15"
   }
 }
