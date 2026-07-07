@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { GALLERY_ITEMS, getLightboxUrl, getLightboxSrcSet, getPlaceholderUrl } from '../data';
 
 export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
@@ -6,15 +6,26 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
   const [isClosing, setIsClosing] = useState(false);
   const item = GALLERY_ITEMS[index];
 
-  //Selfimplementation of touch events for mobile swipe support
   const [touchStart, setTouchStart] = useState(null);
   const [touchStartY, setTouchStartY] = useState(null);
   const [swipeTrail, setSwipeTrail] = useState([]);
 
-  const nextImage = () => setIndex((index + 1) % GALLERY_ITEMS.length);
-  const prevImage = () => setIndex((index - 1 + GALLERY_ITEMS.length) % GALLERY_ITEMS.length);
+  const nextImage = useCallback(() => {
+    setIndex(prev => (prev + 1) % GALLERY_ITEMS.length);
+  }, []);
 
-  const handleKeyDown = (e) => {
+  const prevImage = useCallback(() => {
+    setIndex(prev => (prev - 1 + GALLERY_ITEMS.length) % GALLERY_ITEMS.length);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  }, [onClose]);
+
+  const handleKeyDown = useCallback((e) => {
     if (e.key === 'ArrowRight') {
       e.preventDefault();
       nextImage();
@@ -27,26 +38,17 @@ export default function Lightbox({ imageIndex, onClose, colors, isDark }) {
       e.preventDefault();
       handleClose();
     }
-  };
+  }, [nextImage, prevImage, handleClose]);
 
-  const handleClose = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      onClose();
-    }, 300);
-  };
-
-  // Add global keyboard listener
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
-    // Disable page scroll when lightbox is open
     document.body.style.overflow = 'hidden';
     
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
     };
-  }, [index]);
+  }, [handleKeyDown]);
 
   const handleTouchStart = (e) => {
     setTouchStart(e.touches[0].clientX);

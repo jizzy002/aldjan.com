@@ -2,7 +2,6 @@ import { useState, forwardRef } from 'react';
 
 const Footer = forwardRef(({ colors, isDark }, ref) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -30,26 +29,10 @@ const Footer = forwardRef(({ colors, isDark }, ref) => {
         }, 3000);
       } else {
         setIsLoading(false);
-        setMessage('Error sending message. Please try again.');
       }
     } catch (error) {
       setIsLoading(false);
-      setMessage('Error sending message. Please try again.');
     }
-  };
-
-  const testAnimation = () => {
-    setIsLoading(true);
-    setShowSuccess(false);
-    
-    setTimeout(() => {
-      setIsLoading(false);
-      setShowSuccess(true);
-      
-      setTimeout(() => {
-        setShowSuccess(false);
-      }, 2500);
-    }, 2500);
   };
 
   return (
@@ -95,32 +78,6 @@ const Footer = forwardRef(({ colors, isDark }, ref) => {
           }
         }
         
-        @keyframes colorPulse {
-          0% { color: #4dc8ff; }
-          25% { color: #ff6b9d; }
-          50% { color: #ffa500; }
-          75% { color: #00ff88; }
-          100% { color: #4dc8ff; }
-        }
-        
-        @keyframes buttonShine {
-          0% {
-            background-position: -1000px 0;
-          }
-          100% {
-            background-position: 1000px 0;
-          }
-        }
-        
-        @keyframes buttonPulse {
-          0%, 100% {
-            box-shadow: 0 0 0 0 rgba(77, 200, 255, 0.7);
-          }
-          50% {
-            box-shadow: 0 0 0 10px rgba(77, 200, 255, 0);
-          }
-        }
-        
         @keyframes fadeInText {
           from {
             opacity: 0;
@@ -128,10 +85,6 @@ const Footer = forwardRef(({ colors, isDark }, ref) => {
           to {
             opacity: 1;
           }
-        }
-        
-        .success-message {
-          animation: slideUp 0.4s ease-out, colorPulse 1.5s ease-in-out;
         }
         
         .success-text {
