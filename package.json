@@ -8,17 +8,15 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "vite build && echo 'Build complete. Ready for Cloudflare Pages deployment.'"
+    "deploy": "vite build"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-markdown": "^10.1.0"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
     "terser": "^5.44.1",
-    "vite": "^5.4.21",
-    "wrangler": "^3.114.15"
+    "vite": "^5.4.21"
   }
 }

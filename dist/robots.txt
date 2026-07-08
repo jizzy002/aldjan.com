@@ -1,8 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /dist/
-
-Sitemap: https://aldjan.com/sitemap.xml
-
-# Crawl delay (in seconds)
-Crawl-delay: 1
