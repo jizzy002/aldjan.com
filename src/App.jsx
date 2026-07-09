@@ -571,13 +571,15 @@ export default function App() {
             </a>
           </div>
 
-          {/* LightWidget embed */}
+          {/* SnapWidget embed */}
           <iframe
-            src="//lightwidget.com/widgets/ecb4312a1415594fa1467122162053fb.html"
+            src="https://snapwidget.com/embed/1126768"
+            className="snapwidget-widget"
+            allowtransparency="true"
+            frameBorder="0"
             scrolling="no"
-            allowTransparency="true"
-            className="lightwidget-widget"
-            style={{ width: '100%', border: 0, overflow: 'hidden' }}
+            title="Posts from Instagram"
+            style={{ border: 'none', overflow: 'hidden', width: '100%', maxWidth: 765, aspectRatio: '1 / 1' }}
           />
 
         </div>
