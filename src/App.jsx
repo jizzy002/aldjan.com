@@ -20,7 +20,7 @@ export default function App() {
   const [active, setActive] = useState(null)
   const [hintVisible, setHintVisible] = useState(true)
   const [musicHintState, setMusicHintState] = useState('idle')
-  const musicHintTriggered = useRef(false)
+  const wasPlaying = useRef(false)
   const feedRef = useRef(null)
 
   useEffect(() => {
@@ -61,6 +61,7 @@ export default function App() {
           const track = data?.recenttracks?.track?.[0]
           if (!track) {
             setNowPlaying(null)
+            wasPlaying.current = false
             return
           }
           const isPlaying = track['@attr']?.nowplaying === 'true'
@@ -70,10 +71,10 @@ export default function App() {
             image: track.image?.find(i => i.size === 'large')?.['#text'] || '',
             isPlaying,
           })
-          if (isPlaying && !musicHintTriggered.current) {
-            musicHintTriggered.current = true
+          if (isPlaying && !wasPlaying.current) {
             setMusicHintState('showing')
           }
+          wasPlaying.current = isPlaying
         })
         .catch(() => {})
     }
@@ -93,11 +94,10 @@ export default function App() {
       {/* ── HERO SECTION ── */}
       <section
         style={{
-          minHeight: '100vh',
+          height: '100dvh',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
           position: 'relative',
           overflow: 'hidden',
           padding: '48px 24px 32px',
@@ -114,44 +114,33 @@ export default function App() {
           backgroundSize: '48px 48px',
         }} />
 
-        {/* Speed streaks */}
-        <div aria-hidden style={{ position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' }}>
-          {[12, 28, 45, 60, 75, 88].map((top, i) => (
-            <div key={i} style={{
-              position: 'absolute',
-              top: `${top}%`,
-              left: 0,
-              right: 0,
-              height: 1,
-              background: `linear-gradient(90deg, transparent 0%, rgba(200,220,20,${0.03 + i * 0.01}) 40%, rgba(200,220,20,${0.06 + i * 0.01}) 60%, transparent 100%)`,
-            }} />
-          ))}
-        </div>
+
 
         {/* Central glow */}
         <div aria-hidden style={{
           position: 'absolute', zIndex: 0,
+          top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
           width: 560, height: 560, borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(180,200,10,0.1) 0%, rgba(180,200,10,0.04) 40%, transparent 70%)',
           pointerEvents: 'none',
         }} />
 
         {/* Corner accents */}
-        <div aria-hidden style={{ position: 'absolute', top: 24, left: 24, width: 40, height: 40, borderTop: '1px solid rgba(200,220,20,0.25)', borderLeft: '1px solid rgba(200,220,20,0.25)', zIndex: 1 }} />
-        <div aria-hidden style={{ position: 'absolute', top: 24, right: 24, width: 40, height: 40, borderTop: '1px solid rgba(200,220,20,0.25)', borderRight: '1px solid rgba(200,220,20,0.25)', zIndex: 1 }} />
-        <div aria-hidden style={{ position: 'absolute', bottom: 80, left: 24, width: 40, height: 40, borderBottom: '1px solid rgba(200,220,20,0.25)', borderLeft: '1px solid rgba(200,220,20,0.25)', zIndex: 1 }} />
-        <div aria-hidden style={{ position: 'absolute', bottom: 80, right: 24, width: 40, height: 40, borderBottom: '1px solid rgba(200,220,20,0.25)', borderRight: '1px solid rgba(200,220,20,0.25)', zIndex: 1 }} />
+        <div aria-hidden style={{ position: 'absolute', top: 48, left: 24, width: 40, height: 40, borderTop: '1px solid rgba(200,220,20,0.25)', borderLeft: '1px solid rgba(200,220,20,0.25)', zIndex: 1 }} />
+        <div aria-hidden style={{ position: 'absolute', top: 48, right: 24, width: 40, height: 40, borderTop: '1px solid rgba(200,220,20,0.25)', borderRight: '1px solid rgba(200,220,20,0.25)', zIndex: 1 }} />
+        <div aria-hidden style={{ position: 'absolute', bottom: 32, left: 24, width: 40, height: 40, borderBottom: '1px solid rgba(200,220,20,0.25)', borderLeft: '1px solid rgba(200,220,20,0.25)', zIndex: 1 }} />
+        <div aria-hidden style={{ position: 'absolute', bottom: 32, right: 24, width: 40, height: 40, borderBottom: '1px solid rgba(200,220,20,0.25)', borderRight: '1px solid rgba(200,220,20,0.25)', zIndex: 1 }} />
 
         {/* Content */}
-        <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '100%' }}>
 
           {/* Name */}
           <h1 style={{
             fontFamily: "'Playfair Display', Georgia, serif",
-            fontSize: 'clamp(28px, 5vw, 44px)',
+            fontSize: 'clamp(28px, 5vw, 42px)',
             fontWeight: 400,
             color: '#f0ebe0',
-            margin: '0 0 6px',
+            margin: '20px 0 clamp(16px, 2vh, 28px)',
             letterSpacing: '-0.015em',
             textAlign: 'center',
           }}>
@@ -159,13 +148,13 @@ export default function App() {
           </h1>
 
           {/* Tagline row */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 36 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 'clamp(36px, 6vh, 54px)' }}>
             <span style={{ width: 32, height: 1, background: 'rgba(200,220,20,0.5)' }} />
             <p style={{
-              fontSize: 'clamp(2px, 2.2vw, 14px)', whiteSpace: 'nowrap', fontWeight: 550, letterSpacing: '0.2em',
+              fontSize: 'clamp(8px, 2.2vw, 11px)', whiteSpace: 'nowrap', fontWeight: 550, letterSpacing: '0.2em',
               textTransform: 'uppercase', color: 'rgba(200,220,20,0.8)', margin: 0,
             }}>
-              Motorcycle Enthusiast & Content Creator
+              Motorcycle Enthusiast
             </p>
             <span style={{ width: 32, height: 1, background: 'rgba(200,220,20,0.5)' }} />
           </div>
@@ -173,7 +162,7 @@ export default function App() {
           {/* Helmet container */}
           <div style={{
             position: 'relative',
-            width: 'min(380px, 82vw)',
+            width: 'min(480px, 82vw, 55dvh)',
             aspectRatio: '1 / 1',
             userSelect: 'none',
           }}>
@@ -319,7 +308,7 @@ export default function App() {
               }}
             >
               {/* Ring */}
-              {active !== MUSIC_ID && (
+              {active !== MUSIC_ID && nowPlaying?.isPlaying && (
                 <span aria-hidden style={{
                   position: 'absolute',
                   top: -14,
@@ -485,14 +474,13 @@ export default function App() {
 
           {/* Stats row */}
           <div style={{
-            display: 'flex', gap: 40, marginTop: 28,
-            borderTop: '1px solid rgba(240,235,224,0.07)',
-            paddingTop: 24,
+            display: 'flex', gap: 'clamp(16px, 3vw, 48px)', marginTop: 'clamp(12px, 2vh, 32px)',
+            paddingTop: 'clamp(10px, 2vh, 28px)',
           }}>
             {[['1.4k', 'Followers'], ['40k+', 'Kilometers'], ['9', 'Countries']].map(([val, lbl]) => (
               <div key={lbl} style={{ textAlign: 'center' }}>
-                <p style={{ margin: 0, fontSize: 18, fontWeight: 500, color: '#f0ebe0', letterSpacing: '-0.02em' }}>{val}</p>
-                <p style={{ margin: 0, fontSize: 10, color: 'rgba(240,235,224,0.3)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 2 }}>{lbl}</p>
+                <p style={{ margin: 0, fontSize: 'clamp(11px, 2.2vh, 22px)', fontWeight: 500, color: '#f0ebe0', letterSpacing: '-0.02em' }}>{val}</p>
+                <p style={{ margin: 0, fontSize: 'clamp(7px, 1.2vh, 13px)', color: 'rgba(240,235,224,0.3)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 'clamp(1px, 0.3vh, 3px)' }}>{lbl}</p>
               </div>
             ))}
           </div>
@@ -500,22 +488,23 @@ export default function App() {
         </div>
 
         {/* Scroll arrow */}
-        <button
-          onClick={scrollToFeed}
-          aria-label="Scroll to feed"
-          style={{
-            position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)',
-            background: 'none', border: 'none', cursor: 'pointer', padding: 8,
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, zIndex: 3,
-          }}
-        >
-          <span style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(240,235,224,0.25)' }}>
-            Explore More
-          </span>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ animation: 'bob 1.8s ease-in-out infinite' }}>
-            <path d="M4 7l6 6 6-6" stroke="rgba(200,220,20,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
+        <div style={{ marginTop: 24, marginBottom: 2 }}>
+          <button
+            onClick={scrollToFeed}
+            aria-label="Scroll to feed"
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer', padding: 8,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+            }}
+          >
+            <span style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(240,235,224,0.25)' }}>
+              Explore More
+            </span>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ animation: 'bob 1.8s ease-in-out infinite' }}>
+              <path d="M4 7l6 6 6-6" stroke="rgba(200,220,20,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
 
       </section>
 
