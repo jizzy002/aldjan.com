@@ -549,40 +549,36 @@ export default function App() {
               Find me on
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '0 0 110px' }}>
-            <span style={{ flex: 1, height: 1, background: 'rgba(200,220,20,0.12)' }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, whiteSpace: 'nowrap' }}>
-              {[
-                { label: 'Facebook', href: 'https://facebook.com/#', color: '#1877F2' },
-                { label: 'Snapchat', href: 'https://snapchat.com/add/#', color: '#FFFC00' },
-                { label: 'Telegram', href: 'https://t.me/#', color: '#26A5E4' },
-                { label: 'LinkedIn', href: 'https://linkedin.com/in/#', color: '#0A66C2' },
-                { label: 'YouTube', href: 'https://youtube.com/@ald_jan', color: '#FF0000' }
-              ].map((link, i) => (
-                <span key={link.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  {i > 0 && <span style={{ color: 'rgba(240,235,224,0.2)', fontSize: 10 }}>·</span>}
-                  <a
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      fontSize: 'clamp(8px, 2.5vw, 13px)',
-                      letterSpacing: '0.16em',
-                      textTransform: 'uppercase',
-                      color: 'rgba(240,235,224,0.4)',
-                      textDecoration: 'none',
-                      transition: 'color 0.18s ease',
-                      whiteSpace: 'nowrap',
-                    }}
-                    onMouseEnter={e => e.target.style.color = link.color}
-                    onMouseLeave={e => e.target.style.color = 'rgba(240,235,224,0.4)'}
-                  >
-                    {link.label}
-                  </a>
-                </span>
-              ))}
-            </div>
-            <span style={{ flex: 1, height: 1, background: 'rgba(200,220,20,0.12)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(4px, 1vw, 10px)', padding: '0 0 110px' }}>
+            {[
+              { label: 'Facebook', href: 'https://facebook.com/#', color: '#1877F2' },
+              { label: 'Snapchat', href: 'https://snapchat.com/add/#', color: '#FFFC00' },
+              { label: 'Telegram', href: 'https://t.me/#', color: '#26A5E4' },
+              { label: 'LinkedIn', href: 'https://linkedin.com/in/#', color: '#0A66C2' },
+              { label: 'YouTube', href: 'https://youtube.com/@ald_jan', color: '#FF0000' }
+            ].map((link, i) => (
+              <span key={link.label} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 1vw, 12px)' }}>
+                {i > 0 && <span style={{ color: 'rgba(240,235,224,0.2)', fontSize: 'clamp(6px, 1.5vw, 10px)' }}>·</span>}
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    fontSize: 'clamp(6px, 2.2vw, 13px)',
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(240,235,224,0.4)',
+                    textDecoration: 'none',
+                    transition: 'color 0.18s ease',
+                    whiteSpace: 'nowrap',
+                  }}
+                  onMouseEnter={e => e.target.style.color = link.color}
+                  onMouseLeave={e => e.target.style.color = 'rgba(240,235,224,0.4)'}
+                >
+                  {link.label}
+                </a>
+              </span>
+            ))}
           </div>
 
           {/* Section header */}
