@@ -6,7 +6,17 @@ const LASTFM_USER = import.meta.env.VITE_LASTFM_USERNAME
 
 const HOTSPOTS = [
   { id: 0, label: 'Instagram',  href: 'https://instagram.com/aldjan.pov', x: 27,  y: 67 },
-  { id: 1, label: 'YouTube',    href: 'https://youtube.com/@ald_jan', x: 92,  y: 80 },
+  {
+    id: 1, label: 'YouTube', x: 92,  y: 80,
+    content: {
+      title: 'What gear do I use?',
+      items: [
+        ['Camera', 'DJI Osmo Action 4'],
+        ['Audio', 'DJI Mic Mini'],
+        ['Editing', 'Adobe Premiere Pro'],
+      ],
+    },
+  },
   { id: 2, label: 'TikTok',   href: 'https://www.tiktok.com/@ald.jan', x: 55,  y: 38 }
 
 ]
@@ -268,26 +278,47 @@ export default function App() {
                         ...(labelLeft ? { right: -14, width: 14 } : { left: -14, width: 14 }),
                         height: 1, background: 'rgba(200,220,20,0.5)',
                       }} />
-                      <a
-                        href={spot.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: 'block',
-                          padding: '7px 13px',
+                      {spot.content ? (
+                        <div style={{
                           background: 'rgba(8,8,8,0.97)',
                           border: '1px solid rgba(200,220,20,0.4)',
-                          borderRadius: 4,
-                          color: '#f0ebe0',
-                    fontSize: 'clamp(8px, 2.5vw, 13px)',
-                          fontWeight: 500,
-                          letterSpacing: '0.06em',
-                          textDecoration: 'none',
+                          borderRadius: 6,
                           boxShadow: '0 4px 24px rgba(0,0,0,0.7)',
-                        }}
-                      >
-                        {spot.label} ↗
-                      </a>
+                          padding: 12,
+                          minWidth: 180,
+                        }}>
+                          <div style={{ fontSize: 10, color: 'rgba(200,220,20,0.8)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8, fontWeight: 500 }}>
+                            {spot.content.title}
+                          </div>
+                          {spot.content.items.map(([label, value]) => (
+                            <div key={label} style={{ display: 'flex', gap: 10, marginBottom: 4, alignItems: 'baseline' }}>
+                              <span style={{ fontSize: 10, color: 'rgba(240,235,224,0.35)', letterSpacing: '0.06em', minWidth: 50, flexShrink: 0 }}>{label}</span>
+                              <span style={{ fontSize: 11, color: '#f0ebe0', fontWeight: 450 }}>{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <a
+                          href={spot.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            display: 'block',
+                            padding: '7px 13px',
+                            background: 'rgba(8,8,8,0.97)',
+                            border: '1px solid rgba(200,220,20,0.4)',
+                            borderRadius: 4,
+                            color: '#f0ebe0',
+                            fontSize: 'clamp(8px, 2.5vw, 13px)',
+                            fontWeight: 500,
+                            letterSpacing: '0.06em',
+                            textDecoration: 'none',
+                            boxShadow: '0 4px 24px rgba(0,0,0,0.7)',
+                          }}
+                        >
+                          {spot.popupLabel || spot.label} ↗
+                        </a>
+                      )}
                     </div>
                   )}
                 </div>
@@ -526,6 +557,7 @@ export default function App() {
                 { label: 'Snapchat', href: 'https://snapchat.com/add/#', color: '#FFFC00' },
                 { label: 'Telegram', href: 'https://t.me/#', color: '#26A5E4' },
                 { label: 'LinkedIn', href: 'https://linkedin.com/in/#', color: '#0A66C2' },
+                { label: 'YouTube', href: 'https://youtube.com/@ald_jan', color: '#FF0000' }
               ].map((link, i) => (
                 <span key={link.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   {i > 0 && <span style={{ color: 'rgba(240,235,224,0.2)', fontSize: 10 }}>·</span>}
