@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
-import helmetImg from './imports/LS2-strobe2_3D.png'
+import helmetWebp from './imports/LS2-strobe2_3D.webp'
+import helmetPng from './imports/LS2-strobe2_3D.png'
 
 const LASTFM_KEY = import.meta.env.VITE_LASTFM_API_KEY
 const LASTFM_USER = import.meta.env.VITE_LASTFM_USERNAME
@@ -104,7 +105,7 @@ export default function App() {
       {/* ── HERO SECTION ── */}
       <section
         style={{
-          height: '100dvh',
+          height: '100svh',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -172,22 +173,26 @@ export default function App() {
           {/* Helmet container */}
           <div style={{
             position: 'relative',
-            width: 'min(480px, 82vw, 45dvh)',
+            width: 'min(480px, 82vw, 45svh)',
             aspectRatio: '1 / 1',
             userSelect: 'none',
           }}>
             {/* Helmet image */}
-            <img
-              src={helmetImg}
-              alt="LS2 Strobe II helmet"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain',
-                display: 'block',
-                filter: 'drop-shadow(0 12px 60px rgba(0,0,0,0.9)) drop-shadow(0 0 30px rgba(180,200,10,0.15))',
-              }}
-            />
+            <picture style={{ width: '100%', height: '100%', display: 'block' }}>
+              <source srcSet={helmetWebp} type="image/webp" />
+              <source srcSet={helmetPng} type="image/png" />
+              <img
+                src={helmetPng}
+                alt="LS2 Strobe II helmet"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  display: 'block',
+                  filter: 'drop-shadow(0 12px 60px rgba(0,0,0,0.9)) drop-shadow(0 0 30px rgba(180,200,10,0.15))',
+                }}
+              />
+            </picture>
 
             {/* Vignette to fade edges into dark */}
             <div aria-hidden style={{
@@ -544,38 +549,36 @@ export default function App() {
         <div style={{ maxWidth: 480, margin: '0 auto' }}>
 
           {/* Social links row */}
-          <div style={{ textAlign: 'center', marginBottom: 12 }}>
-            <span style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(240,235,224,0.25)' }}>
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <span style={{ fontSize: 14, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(240,235,224,0.25)' }}>
               Find me on
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(4px, 1vw, 10px)', padding: '0 0 110px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(8px, 2.5vw, 18px)', padding: '0 0 105px' }}>
             {[
-              { label: 'Facebook', href: 'https://facebook.com/#', color: '#1877F2' },
-              { label: 'Snapchat', href: 'https://snapchat.com/add/#', color: '#FFFC00' },
-              { label: 'Telegram', href: 'https://t.me/#', color: '#26A5E4' },
-              { label: 'LinkedIn', href: 'https://linkedin.com/in/#', color: '#0A66C2' },
-              { label: 'YouTube', href: 'https://youtube.com/@ald_jan', color: '#FF0000' }
+              { id: 'facebook', href: 'https://www.facebook.com/ald.jan01/', color: '#1877F2', cls: 'fa-brands fa-facebook' },
+              { id: 'snapchat', href: 'https://www.snapchat.com/add/ald_jan', color: '#FFFC00', cls: 'fa-brands fa-snapchat' },
+              { id: 'telegram', href: 'https://t.me/ald_jan', color: '#26A5E4', cls: 'fa-brands fa-telegram' },
+              { id: 'linkedin', href: 'https://www.linkedin.com/in/aldin-jandri%C4%87-559aa3ab/', color: '#0A66C2', cls: 'fa-brands fa-linkedin' },
+              { id: 'youtube', href: 'https://youtube.com/@ald_jan', color: '#FF0000', cls: 'fa-brands fa-youtube' },
             ].map((link, i) => (
-              <span key={link.label} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 1vw, 12px)' }}>
+              <span key={link.id} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 2.5vw, 12px)' }}>
                 {i > 0 && <span style={{ color: 'rgba(240,235,224,0.2)', fontSize: 'clamp(6px, 1.5vw, 10px)' }}>·</span>}
                 <a
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={link.id}
                   style={{
-                    fontSize: 'clamp(6px, 2.2vw, 13px)',
-                    letterSpacing: '0.12em',
-                    textTransform: 'uppercase',
                     color: 'rgba(240,235,224,0.4)',
                     textDecoration: 'none',
                     transition: 'color 0.18s ease',
-                    whiteSpace: 'nowrap',
+                    fontSize: 30,
                   }}
                   onMouseEnter={e => e.target.style.color = link.color}
                   onMouseLeave={e => e.target.style.color = 'rgba(240,235,224,0.4)'}
                 >
-                  {link.label}
+                  <i className={link.cls} />
                 </a>
               </span>
             ))}
