@@ -554,7 +554,7 @@ export default function App() {
               Find me on
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(8px, 2.5vw, 18px)', padding: '0 0 105px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(8px, 3vw, 18px)', padding: '0 0 105px' }}>
             {[
               { id: 'facebook', href: 'https://www.facebook.com/ald.jan01/', color: '#1877F2', cls: 'fa-brands fa-facebook' },
               { id: 'snapchat', href: 'https://www.snapchat.com/add/ald_jan', color: '#FFFC00', cls: 'fa-brands fa-snapchat' },
@@ -562,7 +562,7 @@ export default function App() {
               { id: 'linkedin', href: 'https://www.linkedin.com/in/aldin-jandri%C4%87-559aa3ab/', color: '#0A66C2', cls: 'fa-brands fa-linkedin' },
               { id: 'youtube', href: 'https://youtube.com/@ald_jan', color: '#FF0000', cls: 'fa-brands fa-youtube' },
             ].map((link, i) => (
-              <span key={link.id} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 2.5vw, 12px)' }}>
+              <span key={link.id} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(20px, 2vw, 30px)' }}>
                 {i > 0 && <span style={{ color: 'rgba(240,235,224,0.2)', fontSize: 'clamp(6px, 1.5vw, 10px)' }}>·</span>}
                 <a
                   href={link.href}
