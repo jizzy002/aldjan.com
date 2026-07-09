@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import helmetWebp from './imports/LS2-strobe2_3D.webp'
 import helmetPng from './imports/LS2-strobe2_3D.png'
+import bikeWebp from './imports/gsx750f-lucille.webp'
+import bikePng from './imports/gsx750f-lucille.png'
+import kawiWebp from './imports/kawi-1993.webp'
+import kawiPng from './imports/kawi-1993.png'
 
 const LASTFM_KEY = import.meta.env.VITE_LASTFM_API_KEY
 const LASTFM_USER = import.meta.env.VITE_LASTFM_USERNAME
@@ -8,7 +12,7 @@ const LASTFM_USER = import.meta.env.VITE_LASTFM_USERNAME
 const HOTSPOTS = [
   { id: 0, label: 'Instagram',  href: 'https://instagram.com/aldjan.pov', x: 27,  y: 67 },
   {
-    id: 1, label: 'YouTube', x: 92,  y: 80,
+    id: 1, label: 'Gear', x: 92,  y: 80,
     content: {
       title: 'What gear do I use?',
       items: [
@@ -18,7 +22,36 @@ const HOTSPOTS = [
       ],
     },
   },
-  { id: 2, label: 'TikTok',   href: 'https://www.tiktok.com/@ald.jan', x: 55,  y: 38 }
+  {
+    id: 2, label: 'Garage', x: 55,  y: 38, popupBelow: true,
+    content: {
+      title: 'Garage',
+      tabs: [
+        {
+          name: 'Lucille',
+          image: bikePng,
+          imageWebp: bikeWebp,
+          items: [
+            ['Make', 'Suzuki GSX750F'],
+            ['Year', '2001'],
+            ['Engine', '750cc inline-four'],
+            ['Power', '92 hp'],
+          ],
+        },
+        {
+          name: 'Kawi',
+          image: kawiPng,
+          imageWebp: kawiWebp,
+          items: [
+            ['Make', 'Kawasaki EN500'],
+            ['Year', '1993'],
+            ['Engine', '500cc parallel-twin'],
+            ['Power', '50 hp'],
+          ],
+        },
+      ],
+    },
+  }
 
 ]
 
@@ -29,6 +62,9 @@ const MUSIC_POS = { x: 23, y: 20 }
 
 export default function App() {
   const [active, setActive] = useState(null)
+  const [hoveredSpot, setHoveredSpot] = useState(null)
+  const [activeTab, setActiveTab] = useState(0)
+  const supportsHover = useState(() => window.matchMedia('(hover: hover)').matches)[0]
   const [hintVisible, setHintVisible] = useState(true)
   const [musicHintState, setMusicHintState] = useState('idle')
   const wasPlaying = useRef(false)
@@ -61,6 +97,10 @@ export default function App() {
     const timer = setTimeout(() => setMusicHintState('done'), 1500)
     return () => clearTimeout(timer)
   }, [musicHintState])
+
+  useEffect(() => {
+    if (active !== 2) setActiveTab(0)
+  }, [active])
 
   const [nowPlaying, setNowPlaying] = useState(null)
 
@@ -204,7 +244,7 @@ export default function App() {
             {/* Hotspots */}
             {HOTSPOTS.map((spot) => {
               const isActive = active === spot.id
-              const labelLeft = spot.x > 50
+              const labelLeft = spot.labelLeft ?? spot.x > 50
 
               return (
                 <div
@@ -238,6 +278,8 @@ export default function App() {
                   {/* Dot (enlarged hit area) */}
                   <button
                     onClick={() => { setActive(isActive ? null : spot.id); setHintVisible(false) }}
+                    onMouseEnter={() => setHoveredSpot(spot.id)}
+                    onMouseLeave={() => setHoveredSpot(null)}
                     aria-label={spot.label}
                     style={{
                       position: 'absolute',
@@ -251,7 +293,6 @@ export default function App() {
                       cursor: 'pointer',
                       padding: 0,
                       outline: 'none',
-                      zIndex: 1,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -266,23 +307,43 @@ export default function App() {
                       boxShadow: isActive ? '0 0 18px rgba(200,220,20,1)' : '0 0 8px rgba(200,220,20,0.5)',
                       transition: 'all 0.18s ease',
                     }} />
+                    {/* Hover tooltip */}
+                    {supportsHover && !isActive && hoveredSpot === spot.id && (
+                      <span style={{
+                        position: 'absolute',
+                        top: -12,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        fontSize: 10,
+                        letterSpacing: '0.06em',
+                        color: 'rgba(240,235,224,0.7)',
+                        background: 'rgba(8,8,8,0.92)',
+                        padding: '3px 9px',
+                        borderRadius: 3,
+                        whiteSpace: 'nowrap',
+                        pointerEvents: 'none',
+                        border: '1px solid rgba(200,220,20,0.25)',
+                      }}>
+                        {spot.label}
+                      </span>
+                    )}
                   </button>
 
                   {/* Label popup */}
                   {isActive && (
                     <div style={{
                       position: 'absolute',
-                      top: 0,
-                      transform: 'translateY(-50%)',
-                      ...(labelLeft ? { right: 14 } : { left: 14 }),
+                      ...(spot.popupBelow
+                        ? { top: 22, left: '50%', transform: 'translateX(-50%)' }
+                        : { top: 0, transform: 'translateY(-50%)', ...(labelLeft ? { right: 14 } : { left: 14 }) }
+                      ),
                       whiteSpace: 'nowrap',
                     }}>
                       {/* Connector */}
-                      <span aria-hidden style={{
-                        position: 'absolute', top: '50%',
-                        ...(labelLeft ? { right: -14, width: 14 } : { left: -14, width: 14 }),
-                        height: 1, background: 'rgba(200,220,20,0.5)',
-                      }} />
+                      <span aria-hidden style={spot.popupBelow
+                        ? { position: 'absolute', top: -6, left: '50%', width: 1, height: 6, background: 'rgba(200,220,20,0.5)' }
+                        : { position: 'absolute', top: '50%', ...(labelLeft ? { right: -14, width: 14 } : { left: -14, width: 14 }), height: 1, background: 'rgba(200,220,20,0.5)' }
+                      } />
                       {spot.content ? (
                         <div style={{
                           background: 'rgba(8,8,8,0.97)',
@@ -290,17 +351,70 @@ export default function App() {
                           borderRadius: 6,
                           boxShadow: '0 4px 24px rgba(0,0,0,0.7)',
                           padding: 12,
-                          minWidth: 180,
+                          minWidth: 220,
                         }}>
                           <div style={{ fontSize: 10, color: 'rgba(200,220,20,0.8)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8, fontWeight: 500 }}>
                             {spot.content.title}
                           </div>
-                          {spot.content.items.map(([label, value]) => (
-                            <div key={label} style={{ display: 'flex', gap: 10, marginBottom: 4, alignItems: 'baseline' }}>
-                              <span style={{ fontSize: 10, color: 'rgba(240,235,224,0.35)', letterSpacing: '0.06em', minWidth: 50, flexShrink: 0 }}>{label}</span>
-                              <span style={{ fontSize: 11, color: '#f0ebe0', fontWeight: 450 }}>{value}</span>
-                            </div>
-                          ))}
+                          {spot.content.tabs ? (
+                            <>
+                              <div style={{ display: 'flex', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
+                                {spot.content.tabs.map((tab, i) => (
+                                  <button key={i} onClick={() => setActiveTab(i)} style={{
+                                    fontSize: 10,
+                                    letterSpacing: '0.06em',
+                                    padding: '4px 10px',
+                                    borderRadius: 3,
+                                    border: `1px solid ${activeTab === i ? 'rgba(200,220,20,0.6)' : 'rgba(200,220,20,0.2)'}`,
+                                    background: activeTab === i ? 'rgba(200,220,20,0.12)' : 'transparent',
+                                    color: activeTab === i ? '#c8dc14' : 'rgba(240,235,224,0.5)',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.15s ease',
+                                    outline: 'none',
+                                  }}>
+                                    {tab.name}
+                                  </button>
+                                ))}
+                              </div>
+                              {spot.content.tabs[activeTab]?.image && (
+                                <picture style={{ width: '100%', aspectRatio: '4 / 3', display: 'block', marginBottom: 8 }}>
+                                  <source srcSet={spot.content.tabs[activeTab].imageWebp} type="image/webp" />
+                                  <source srcSet={spot.content.tabs[activeTab].image} type="image/png" />
+                                  <img src={spot.content.tabs[activeTab].image} alt="" style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain',
+                                    filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
+                                  }} />
+                                </picture>
+                              )}
+                              {spot.content.tabs[activeTab]?.items.map(([label, value]) => (
+                                <div key={label} style={{ display: 'flex', gap: 10, marginBottom: 4, alignItems: 'baseline' }}>
+                                  <span style={{ fontSize: 10, color: 'rgba(240,235,224,0.35)', letterSpacing: '0.06em', minWidth: 50, flexShrink: 0 }}>{label}</span>
+                                  <span style={{ fontSize: 11, color: '#f0ebe0', fontWeight: 450 }}>{value}</span>
+                                </div>
+                              ))}
+                            </>
+                          ) : (
+                            <>
+                              {spot.content.image && (
+                                <picture style={{ width: '100%', aspectRatio: '4 / 3', display: 'block', marginBottom: 8 }}>
+                                  {spot.content.imageWebp && <source srcSet={spot.content.imageWebp} type="image/webp" />}
+                                  <source srcSet={spot.content.image} type="image/png" />
+                                  <img src={spot.content.image} alt="" style={{
+                                    width: '100%', height: '100%', objectFit: 'contain',
+                                    filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
+                                  }} />
+                                </picture>
+                              )}
+                              {spot.content.items.map(([label, value]) => (
+                                <div key={label} style={{ display: 'flex', gap: 10, marginBottom: 4, alignItems: 'baseline' }}>
+                                  <span style={{ fontSize: 10, color: 'rgba(240,235,224,0.35)', letterSpacing: '0.06em', minWidth: 50, flexShrink: 0 }}>{label}</span>
+                                  <span style={{ fontSize: 11, color: '#f0ebe0', fontWeight: 450 }}>{value}</span>
+                                </div>
+                              ))}
+                            </>
+                          )}
                         </div>
                       ) : (
                         <a
@@ -365,6 +479,8 @@ export default function App() {
               {/* Dot */}
               <button
                 onClick={() => { setActive(active === MUSIC_ID ? null : MUSIC_ID); setHintVisible(false); setMusicHintState('done') }}
+                onMouseEnter={() => setHoveredSpot(MUSIC_ID)}
+                onMouseLeave={() => setHoveredSpot(null)}
                 aria-label={nowPlaying?.isPlaying ? `Now playing: ${nowPlaying.track}` : 'Last.fm'}
                 style={{
                   position: 'absolute',
@@ -378,7 +494,6 @@ export default function App() {
                   cursor: 'pointer',
                   padding: 0,
                   outline: 'none',
-                  zIndex: 1,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -401,6 +516,26 @@ export default function App() {
                     : 'none',
                   transition: 'all 0.18s ease',
                 }} />
+                {/* Hover tooltip */}
+                {supportsHover && active !== MUSIC_ID && hoveredSpot === MUSIC_ID && (
+                  <span style={{
+                    position: 'absolute',
+                    top: -12,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    fontSize: 10,
+                    letterSpacing: '0.06em',
+                    color: 'rgba(240,235,224,0.7)',
+                    background: 'rgba(8,8,8,0.92)',
+                    padding: '3px 9px',
+                    borderRadius: 3,
+                    whiteSpace: 'nowrap',
+                    pointerEvents: 'none',
+                    border: '1px solid rgba(200,220,20,0.25)',
+                  }}>
+                    {nowPlaying?.isPlaying ? 'Now Playing' : 'Last.fm'}
+                  </span>
+                )}
               </button>
 
               {/* Initial "now playing" hint */}
@@ -431,6 +566,7 @@ export default function App() {
                   transform: 'translateY(-50%)',
                   left: 14,
                   whiteSpace: 'nowrap',
+                  zIndex: 2,
                 }}>
                   {/* Connector */}
                   <span aria-hidden style={{
@@ -561,6 +697,7 @@ export default function App() {
               { id: 'telegram', href: 'https://t.me/ald_jan', color: '#26A5E4', cls: 'fa-brands fa-telegram' },
               { id: 'linkedin', href: 'https://www.linkedin.com/in/aldin-jandri%C4%87-559aa3ab/', color: '#0A66C2', cls: 'fa-brands fa-linkedin' },
               { id: 'youtube', href: 'https://youtube.com/@ald_jan', color: '#FF0000', cls: 'fa-brands fa-youtube' },
+              { id: 'tiktok', href: 'https://www.tiktok.com/@ald.jan', color: '#ffffff', cls: 'fa-brands fa-tiktok' },
             ].map((link, i) => (
               <span key={link.id} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(20px, 2vw, 30px)' }}>
                 {i > 0 && <span style={{ color: 'rgba(240,235,224,0.2)', fontSize: 'clamp(6px, 1.5vw, 10px)' }}>·</span>}
@@ -569,14 +706,12 @@ export default function App() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={link.id}
+                  className="social-link"
                   style={{
-                    color: 'rgba(240,235,224,0.4)',
+                    '--link-color': link.color,
                     textDecoration: 'none',
-                    transition: 'color 0.18s ease',
                     fontSize: 30,
                   }}
-                  onMouseEnter={e => e.target.style.color = link.color}
-                  onMouseLeave={e => e.target.style.color = 'rgba(240,235,224,0.4)'}
                 >
                   <i className={link.cls} />
                 </a>
@@ -637,6 +772,15 @@ export default function App() {
         @keyframes bob {
           0%, 100% { transform: translateY(0);   opacity: 0.6; }
           50%       { transform: translateY(5px); opacity: 1;   }
+        }
+        .social-link {
+          color: rgba(240,235,224,0.4);
+          transition: color 0.18s ease;
+        }
+        @media (hover: hover) {
+          .social-link:hover {
+            color: var(--link-color);
+          }
         }
       `}</style>
     </div>

@@ -15,3 +15,11 @@ body {
 ::-webkit-scrollbar {
   display: none;
 }
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
