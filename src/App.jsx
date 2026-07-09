@@ -162,7 +162,7 @@ export default function App() {
           {/* Helmet container */}
           <div style={{
             position: 'relative',
-            width: 'min(480px, 82vw, 55dvh)',
+            width: 'min(480px, 82vw, 45dvh)',
             aspectRatio: '1 / 1',
             userSelect: 'none',
           }}>
