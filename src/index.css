@@ -5,7 +5,7 @@
 body {
   margin: 0;
   font-family: 'DM Sans', system-ui, sans-serif;
-  background: #0c0c0c;
+  background: #080808;
   color: #ede8df;
   -webkit-font-smoothing: antialiased;
 }
@@ -51,5 +51,31 @@ button, a {
 @media (hover: hover) {
   .social-link:hover {
     color: var(--link-color);
+  }
+}
+
+/* ── Feed layout ── */
+
+.feed-container {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.feed-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .feed-container {
+    max-width: 800px;
+  }
+  .feed-layout {
+    flex-direction: row;
+  }
+  .feed-layout > * {
+    flex: 1;
+    min-width: 0;
   }
 }

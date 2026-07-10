@@ -6,3 +6,5 @@ node_modules/
 .env
 # build output
 dist/
+# transient session plans
+.opencode/plans/

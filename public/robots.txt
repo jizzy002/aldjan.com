@@ -1,6 +1,5 @@
 User-agent: *
 Allow: /
-Disallow: /dist/
 
 Sitemap: https://aldjan.com/sitemap.xml
 

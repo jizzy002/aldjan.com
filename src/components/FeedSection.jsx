@@ -1,4 +1,5 @@
 import { forwardRef } from 'react'
+import GarageSection from './GarageSection'
 
 const SOCIAL_LINKS = [
   { id: 'facebook', href: 'https://www.facebook.com/ald.jan01/', color: '#1877F2', cls: 'fa-brands fa-facebook' },
@@ -12,7 +13,7 @@ const SOCIAL_LINKS = [
 const FeedSection = forwardRef(function FeedSection(_props, ref) {
   return (
     <section ref={ref} style={{ padding: '64px 24px 80px' }}>
-      <div style={{ maxWidth: 480, margin: '0 auto' }}>
+      <div className="feed-container">
 
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <span style={{ fontSize: 14, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(240,235,224,0.25)' }}>
@@ -42,32 +43,46 @@ const FeedSection = forwardRef(function FeedSection(_props, ref) {
           ))}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ width: 16, height: 1, background: 'rgba(200,220,20,0.5)' }} />
-            <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(200,220,20,0.8)' }}>
-              Latest Posts
-            </span>
-          </div>
-          <a
-            href="https://instagram.com/aldjan.pov"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(240,235,224,0.3)', textDecoration: 'none' }}
-          >
-            @aldjan.pov ↗
-          </a>
-        </div>
+        <div className="feed-layout">
 
-        <iframe
-          src="https://snapwidget.com/embed/1126768"
-          className="snapwidget-widget"
-          allowtransparency="true"
-          frameBorder="0"
-          scrolling="no"
-          title="Posts from Instagram"
-          style={{ border: 'none', overflow: 'hidden', width: '100%', maxWidth: 765, aspectRatio: '1 / 1' }}
-        />
+          <GarageSection />
+
+          <div style={{
+            background: 'rgba(8,8,8,0.97)',
+            border: '1px solid rgba(200,220,20,0.4)',
+            borderRadius: 6,
+            boxShadow: '0 4px 24px rgba(0,0,0,0.7)',
+            padding: 22,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ width: 16, height: 1, background: 'rgba(200,220,20,0.5)' }} />
+                <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(200,220,20,0.8)' }}>
+                  Latest Posts
+                </span>
+              </div>
+              <a
+                href="https://instagram.com/aldjan.pov"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(240,235,224,0.3)', textDecoration: 'none' }}
+              >
+                @aldjan.pov ↗
+              </a>
+            </div>
+
+            <iframe
+              src="https://snapwidget.com/embed/1126768"
+              className="snapwidget-widget"
+              allowtransparency="true"
+              frameBorder={0}
+              scrolling="no"
+              title="Posts from Instagram"
+              style={{ border: 'none', overflow: 'hidden', width: '100%', aspectRatio: '1 / 1', borderRadius: 4 }}
+            />
+          </div>
+
+        </div>
 
       </div>
     </section>

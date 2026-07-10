@@ -9,15 +9,14 @@ export default function useNowPlaying() {
   const wasPlaying = useRef(false)
 
   useEffect(() => {
-    if (musicHintState !== 'showing') return
-    const timer = setTimeout(() => setMusicHintState('hiding'), 2500)
-    return () => clearTimeout(timer)
-  }, [musicHintState])
-
-  useEffect(() => {
-    if (musicHintState !== 'hiding') return
-    const timer = setTimeout(() => setMusicHintState('done'), 1500)
-    return () => clearTimeout(timer)
+    if (musicHintState === 'showing') {
+      const timer = setTimeout(() => setMusicHintState('hiding'), 2500)
+      return () => clearTimeout(timer)
+    }
+    if (musicHintState === 'hiding') {
+      const timer = setTimeout(() => setMusicHintState('done'), 1500)
+      return () => clearTimeout(timer)
+    }
   }, [musicHintState])
 
   useEffect(() => {

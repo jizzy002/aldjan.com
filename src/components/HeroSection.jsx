@@ -1,11 +1,8 @@
 import { useState, useEffect } from 'react'
 import helmetWebp from '../imports/LS2-strobe2_3D.webp'
 import helmetPng from '../imports/LS2-strobe2_3D.png'
-import bikeWebp from '../imports/gsx750f-lucille.webp'
-import bikePng from '../imports/gsx750f-lucille.png'
-import kawiWebp from '../imports/kawi-1993.webp'
-import kawiPng from '../imports/kawi-1993.png'
 import MusicHotspot from './MusicHotspot'
+import StatsSection from './StatsSection'
 
 const HOTSPOTS = [
   { id: 0, label: 'Instagram',  href: 'https://instagram.com/aldjan.pov', x: 27,  y: 67 },
@@ -17,36 +14,6 @@ const HOTSPOTS = [
         ['Camera', 'DJI Osmo Action 4'],
         ['Audio', 'DJI Mic Mini'],
         ['Editing', 'Adobe Premiere Pro'],
-      ],
-    },
-  },
-  {
-    id: 2, label: 'Garage', x: 55,  y: 38, popupBelow: true,
-    content: {
-      title: 'Garage',
-      tabs: [
-        {
-          name: 'Lucille',
-          image: bikePng,
-          imageWebp: bikeWebp,
-          items: [
-            ['Make', 'Suzuki GSX750F'],
-            ['Year', '2001'],
-            ['Engine', '750cc inline-four'],
-            ['Power', '92 hp'],
-          ],
-        },
-        {
-          name: 'Kawi',
-          image: kawiPng,
-          imageWebp: kawiWebp,
-          items: [
-            ['Make', 'Kawasaki EN500'],
-            ['Year', '1993'],
-            ['Engine', '500cc parallel-twin'],
-            ['Power', '50 hp'],
-          ],
-        },
       ],
     },
   },
@@ -67,13 +34,8 @@ function PopupItems({ items }) {
 export default function HeroSection({ nowPlaying, musicHintState, setMusicHintState, onScrollToFeed }) {
   const [active, setActive] = useState(null)
   const [hoveredSpot, setHoveredSpot] = useState(null)
-  const [activeTab, setActiveTab] = useState(0)
   const [hintVisible, setHintVisible] = useState(true)
   const supportsHover = useState(() => window.matchMedia('(hover: hover)').matches)[0]
-
-  useEffect(() => {
-    if (active !== 2) setActiveTab(0)
-  }, [active])
 
   useEffect(() => {
     if (!hintVisible) return
@@ -106,6 +68,7 @@ export default function HeroSection({ nowPlaying, musicHintState, setMusicHintSt
       {/* Grid background */}
       <div aria-hidden style={{
         position: 'absolute', inset: 0, zIndex: 0,
+        pointerEvents: 'none',
         backgroundImage: `
           linear-gradient(rgba(200,220,20,0.04) 1px, transparent 1px),
           linear-gradient(90deg, rgba(200,220,20,0.04) 1px, transparent 1px)
@@ -190,7 +153,7 @@ export default function HeroSection({ nowPlaying, musicHintState, setMusicHintSt
           {/* Hotspots */}
           {HOTSPOTS.map((spot) => {
             const isActive = active === spot.id
-            const labelLeft = spot.labelLeft ?? spot.x > 50
+            const labelLeft = spot.x > 50
 
             return (
               <div
@@ -273,17 +236,19 @@ export default function HeroSection({ nowPlaying, musicHintState, setMusicHintSt
                 {isActive && (
                   <div style={{
                     position: 'absolute',
-                    ...(spot.popupBelow
-                      ? { top: 22, left: '50%', transform: 'translateX(-50%)' }
-                      : { top: 0, transform: 'translateY(-50%)', ...(labelLeft ? { right: 14 } : { left: 14 }) }
-                    ),
+                    top: 0,
+                    transform: 'translateY(-50%)',
+                    ...(labelLeft ? { right: 14 } : { left: 14 }),
                     whiteSpace: 'nowrap',
                   }}>
                     {/* Connector */}
-                    <span aria-hidden style={spot.popupBelow
-                      ? { position: 'absolute', top: -6, left: '50%', width: 1, height: 6, background: 'rgba(200,220,20,0.5)' }
-                      : { position: 'absolute', top: '50%', ...(labelLeft ? { right: -14, width: 14 } : { left: -14, width: 14 }), height: 1, background: 'rgba(200,220,20,0.5)' }
-                    } />
+                    <span aria-hidden style={{
+                      position: 'absolute',
+                      top: '50%',
+                      ...(labelLeft ? { right: -14, width: 14 } : { left: -14, width: 14 }),
+                      height: 1,
+                      background: 'rgba(200,220,20,0.5)',
+                    }} />
                     {spot.content ? (
                       <div style={{
                         background: 'rgba(8,8,8,0.97)',
@@ -296,53 +261,19 @@ export default function HeroSection({ nowPlaying, musicHintState, setMusicHintSt
                         <div style={{ fontSize: 10, color: 'rgba(200,220,20,0.8)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8, fontWeight: 500 }}>
                           {spot.content.title}
                         </div>
-                        {spot.content.tabs ? (
-                          <>
-                            <div style={{ display: 'flex', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
-                              {spot.content.tabs.map((tab, i) => (
-                                <button key={i} onClick={() => setActiveTab(i)} style={{
-                                  fontSize: 10,
-                                  letterSpacing: '0.06em',
-                                  padding: '4px 10px',
-                                  borderRadius: 3,
-                                  border: `1px solid ${activeTab === i ? 'rgba(200,220,20,0.6)' : 'rgba(200,220,20,0.2)'}`,
-                                  background: activeTab === i ? 'rgba(200,220,20,0.12)' : 'transparent',
-                                  color: activeTab === i ? '#c8dc14' : 'rgba(240,235,224,0.5)',
-                                  cursor: 'pointer',
-                                  transition: 'all 0.15s ease',
-                                  outline: 'none',
-                                }}>
-                                  {tab.name}
-                                </button>
-                              ))}
-                            </div>
-                            {spot.content.tabs[activeTab]?.image && (
-                              <picture style={{ width: '100%', aspectRatio: '4 / 3', display: 'block', marginBottom: 8 }}>
-                                <source srcSet={spot.content.tabs[activeTab].imageWebp} type="image/webp" />
-                                <source srcSet={spot.content.tabs[activeTab].image} type="image/png" />
-                                <img src={spot.content.tabs[activeTab].image} alt="" style={{
-                                  width: '100%', height: '100%', objectFit: 'contain',
-                                  filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
-                                }} />
-                              </picture>
-                            )}
-                            <PopupItems items={spot.content.tabs[activeTab]?.items} />
-                          </>
-                        ) : (
-                          <>
-                            {spot.content.image && (
-                              <picture style={{ width: '100%', aspectRatio: '4 / 3', display: 'block', marginBottom: 8 }}>
-                                {spot.content.imageWebp && <source srcSet={spot.content.imageWebp} type="image/webp" />}
-                                <source srcSet={spot.content.image} type="image/png" />
-                                <img src={spot.content.image} alt="" style={{
-                                  width: '100%', height: '100%', objectFit: 'contain',
-                                  filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
-                                }} />
-                              </picture>
-                            )}
-                            <PopupItems items={spot.content.items} />
-                          </>
-                        )}
+                        <>
+                          {spot.content.image && (
+                            <picture style={{ width: '100%', aspectRatio: '4 / 3', display: 'block', marginBottom: 8 }}>
+                              {spot.content.imageWebp && <source srcSet={spot.content.imageWebp} type="image/webp" />}
+                              <source srcSet={spot.content.image} type="image/png" />
+                              <img src={spot.content.image} alt="" style={{
+                                width: '100%', height: '100%', objectFit: 'contain',
+                                filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
+                              }} />
+                            </picture>
+                          )}
+                          <PopupItems items={spot.content.items} />
+                        </>
                       </div>
                     ) : (
                       <a
@@ -409,18 +340,7 @@ export default function HeroSection({ nowPlaying, musicHintState, setMusicHintSt
           • tap the dots •
         </div>
 
-        {/* Stats row */}
-        <div style={{
-          display: 'flex', gap: 'clamp(16px, 3vw, 48px)', marginTop: 'clamp(12px, 2vh, 32px)',
-          paddingTop: 'clamp(10px, 2vh, 28px)',
-        }}>
-          {[['1.4k', 'Followers'], ['40k+', 'Kilometers'], ['9', 'Countries']].map(([val, lbl]) => (
-            <div key={lbl} style={{ textAlign: 'center' }}>
-              <p style={{ margin: 0, fontSize: 'clamp(11px, 2.2vh, 22px)', fontWeight: 500, color: '#f0ebe0', letterSpacing: '-0.02em' }}>{val}</p>
-              <p style={{ margin: 0, fontSize: 'clamp(7px, 1.2vh, 13px)', color: 'rgba(240,235,224,0.3)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 'clamp(1px, 0.3vh, 3px)' }}>{lbl}</p>
-            </div>
-          ))}
-        </div>
+        <StatsSection />
       </div>
 
       {/* Scroll arrow */}
