@@ -2,7 +2,7 @@
 
 Minimalist motorcycle-rider landing page. Built with **React 19** + **Vite 5**.
 
-**Live:** [aldjan.com](https://aldjan.com)
+**Live:** [dev.aldjan.com](https://dev.aldjan.com)
 
 ## Features
 
