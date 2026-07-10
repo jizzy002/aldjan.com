@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "OpenCode (WSL)",
+      "type": "shell",
+      "command": "opencode",
+      "options": {
+        "shell": {
+          "executable": "wsl.exe",
+          "args": ["-d", "Ubuntu", "--cd", "/mnt/c/Users/jizzy/Documents/GitHub/aldjan.com"]
+        }
+      },
+      "presentation": {
+        "echo": false,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    }
+  ]
+}
