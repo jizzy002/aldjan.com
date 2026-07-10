@@ -13,10 +13,12 @@ export default defineConfig({
         drop_console: true,
       },
     },
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
+        codeSplitting: {
+          groups: [
+            { name: 'react-vendor', test: /node_modules\/(react|react-dom)\// },
+          ],
         },
       },
     },
