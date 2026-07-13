@@ -71,7 +71,7 @@ export default function GarageSection() {
         <picture style={{ width: '100%', aspectRatio: '4 / 3', display: 'block', marginBottom: 8 }}>
           {tab.imageWebp && <source srcSet={tab.imageWebp} type="image/webp" />}
           <source srcSet={tab.image} type="image/png" />
-          <img src={tab.image} alt="" style={{
+          <img src={tab.image} alt={`${tab.name} - ${tab.items[0][1]} motorcycle`} style={{
             width: '100%', height: '100%', objectFit: 'contain',
             filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
           }} />

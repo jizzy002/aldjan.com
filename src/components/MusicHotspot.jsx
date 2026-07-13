@@ -125,7 +125,7 @@ export default function MusicHotspot({
               {nowPlaying?.image && (
                 <img
                   src={nowPlaying.image}
-                  alt=""
+                  alt={`${nowPlaying.track} by ${nowPlaying.artist}`}
                   style={{
                     width: 64, height: 64, borderRadius: 6,
                     objectFit: 'cover', flexShrink: 0,
@@ -180,7 +180,7 @@ export default function MusicHotspot({
                       {recentTracks.map((t, i) => (
                         <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                           {t.image && (
-                            <img src={t.image} alt="" style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover', flexShrink: 0, opacity: 0.6 }} />
+                            <img src={t.image} alt={`${t.track} by ${t.artist}`} style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover', flexShrink: 0, opacity: 0.6 }} />
                           )}
                           <div style={{ minWidth: 0 }}>
                             <div style={{ fontSize: 12, color: 'rgba(240,235,224,0.6)', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.track}</div>
