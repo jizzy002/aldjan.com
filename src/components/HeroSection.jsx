@@ -31,7 +31,7 @@ function PopupItems({ items }) {
   ))
 }
 
-export default function HeroSection({ nowPlaying, musicHintState, setMusicHintState, onScrollToFeed }) {
+export default function HeroSection({ nowPlaying, recentTracks, musicHintState, setMusicHintState, onScrollToFeed }) {
   const [active, setActive] = useState(null)
   const [hoveredSpot, setHoveredSpot] = useState(null)
   const [hintVisible, setHintVisible] = useState(true)
@@ -306,6 +306,7 @@ export default function HeroSection({ nowPlaying, musicHintState, setMusicHintSt
           {/* Music hotspot */}
           <MusicHotspot
             nowPlaying={nowPlaying}
+            recentTracks={recentTracks}
             musicHintState={musicHintState}
             setMusicHintState={setMusicHintState}
             isActive={active === MUSIC_ID}

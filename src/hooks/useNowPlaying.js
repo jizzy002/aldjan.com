@@ -5,6 +5,7 @@ const LASTFM_USER = import.meta.env.VITE_LASTFM_USERNAME
 
 export default function useNowPlaying() {
   const [nowPlaying, setNowPlaying] = useState(null)
+  const [recentTracks, setRecentTracks] = useState([])
   const [musicHintState, setMusicHintState] = useState('idle')
   const wasPlaying = useRef(false)
 
@@ -21,22 +22,34 @@ export default function useNowPlaying() {
 
   useEffect(() => {
     function fetchNowPlaying() {
-      fetch(`https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LASTFM_USER}&api_key=${LASTFM_KEY}&format=json&limit=1`)
+      fetch(`https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LASTFM_USER}&api_key=${LASTFM_KEY}&format=json&limit=5`)
         .then(r => r.json())
         .then(data => {
-          const track = data?.recenttracks?.track?.[0]
-          if (!track) {
+          const tracks = data?.recenttracks?.track
+          if (!tracks?.length) {
             setNowPlaying(null)
+            setRecentTracks([])
             wasPlaying.current = false
             return
           }
-          const isPlaying = track['@attr']?.nowplaying === 'true'
+          const first = tracks[0]
+          const isPlaying = first['@attr']?.nowplaying === 'true'
+
           setNowPlaying({
-            track: track.name,
-            artist: track.artist['#text'],
-            image: track.image?.find(i => i.size === 'large')?.['#text'] || '',
+            track: first.name,
+            artist: first.artist['#text'],
+            image: first.image?.find(i => i.size === 'large')?.['#text'] || '',
             isPlaying,
           })
+
+          setRecentTracks(
+            tracks.slice(1, 5).map(t => ({
+              track: t.name,
+              artist: t.artist['#text'],
+              image: t.image?.find(i => i.size === 'small')?.['#text'] || '',
+            }))
+          )
+
           if (isPlaying && !wasPlaying.current) {
             setMusicHintState('showing')
           }
@@ -46,9 +59,9 @@ export default function useNowPlaying() {
     }
 
     fetchNowPlaying()
-    const interval = setInterval(fetchNowPlaying, 10000)
+    const interval = setInterval(fetchNowPlaying, 25000)
     return () => clearInterval(interval)
   }, [])
 
-  return { nowPlaying, musicHintState, setMusicHintState }
+  return { nowPlaying, recentTracks, musicHintState, setMusicHintState }
 }

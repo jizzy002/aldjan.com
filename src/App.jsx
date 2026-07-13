@@ -5,7 +5,7 @@ import FeedSection from './components/FeedSection'
 import Footer from './components/Footer'
 
 export default function App() {
-  const { nowPlaying, musicHintState, setMusicHintState } = useNowPlaying()
+  const { nowPlaying, recentTracks, musicHintState, setMusicHintState } = useNowPlaying()
   const feedRef = useRef(null)
 
   const scrollToFeed = () => {
@@ -16,6 +16,7 @@ export default function App() {
     <div style={{ background: '#080808', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
       <HeroSection
         nowPlaying={nowPlaying}
+        recentTracks={recentTracks}
         musicHintState={musicHintState}
         setMusicHintState={setMusicHintState}
         onScrollToFeed={scrollToFeed}

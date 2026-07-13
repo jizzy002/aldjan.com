@@ -1,5 +1,8 @@
+import { useState } from 'react'
+
 export default function MusicHotspot({
   nowPlaying,
+  recentTracks,
   musicHintState,
   setMusicHintState,
   isActive,
@@ -10,6 +13,7 @@ export default function MusicHotspot({
   supportsHover,
   style,
 }) {
+  const [showRecent, setShowRecent] = useState(false)
   return (
     <div data-hotspot style={style}>
       {/* Pulse ring */}
@@ -69,7 +73,7 @@ export default function MusicHotspot({
             borderRadius: 3,
             whiteSpace: 'nowrap',
             pointerEvents: 'none',
-            border: '1px solid rgba(200,220,20,0.25)',
+            border: '1px solid rgba(26,219,128,0.25)',
           }}>
             {nowPlaying?.isPlaying ? 'Now Playing' : 'Last.fm'}
           </span>
@@ -107,11 +111,11 @@ export default function MusicHotspot({
         }}>
           <span aria-hidden style={{
             position: 'absolute', top: '50%', left: -14, width: 14,
-            height: 1, background: 'rgba(200,220,20,0.5)',
+            height: 1, background: 'rgba(26,219,128,0.5)',
           }} />
           <div style={{
             background: 'rgba(8,8,8,0.97)',
-            border: '1px solid rgba(200,220,20,0.4)',
+            border: '1px solid rgba(26,219,128,0.4)',
             borderRadius: 8,
             boxShadow: '0 6px 32px rgba(0,0,0,0.8)',
             padding: 14,
@@ -153,6 +157,54 @@ export default function MusicHotspot({
                 </div>
               </div>
             </div>
+
+            {recentTracks?.length > 0 && (
+              <>
+                {!showRecent ? (
+                  <div
+                    onClick={e => { e.stopPropagation(); setShowRecent(true) }}
+                    style={{
+                      marginTop: 10, textAlign: 'center', cursor: 'pointer',
+                      fontSize: 10, letterSpacing: '0.06em', color: 'rgba(240,235,224,0.35)',
+                      transition: 'color 0.15s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.color = 'rgba(240,235,224,0.6)'}
+                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(240,235,224,0.35)'}
+                  >
+                    ▸ Show recent ({recentTracks.length})
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ margin: '10px 0 8px', height: 1, background: 'rgba(26,219,128,0.15)' }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 160, overflowY: 'auto' }}>
+                      {recentTracks.map((t, i) => (
+                        <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                          {t.image && (
+                            <img src={t.image} alt="" style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover', flexShrink: 0, opacity: 0.6 }} />
+                          )}
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: 12, color: 'rgba(240,235,224,0.6)', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.track}</div>
+                            <div style={{ fontSize: 10, color: 'rgba(240,235,224,0.3)' }}>{t.artist}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div
+                      onClick={e => { e.stopPropagation(); setShowRecent(false) }}
+                      style={{
+                        marginTop: 8, textAlign: 'center', cursor: 'pointer',
+                        fontSize: 10, letterSpacing: '0.06em', color: 'rgba(240,235,224,0.35)',
+                        transition: 'color 0.15s',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.color = 'rgba(240,235,224,0.6)'}
+                      onMouseLeave={e => e.currentTarget.style.color = 'rgba(240,235,224,0.35)'}
+                    >
+                      ▾ Hide recent
+                    </div>
+                  </>
+                )}
+              </>
+            )}
           </div>
         </div>
       )}

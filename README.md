@@ -1,17 +1,17 @@
 # aldjan.com
 
-Minimalist motorcycle-rider landing page. Built with **React 19** + **Vite 5**.
+Minimalist motorcycle-rider landing page. Built with **React 19** + **Vite 8**.
 
 **Live:** [dev.aldjan.com](https://dev.aldjan.com)
 
 ## Features
 
 - **Helmet hotspots** — interactive dots on the LS2 Strobe II helmet (Gear info, Instagram link)
-- **Last.fm now-playing** — polls every 10s, shows currently scrobbling track with a pulsing green dot
+- **Last.fm now-playing** — polls every 25s, shows currently scrobbling track + recent queue with a pulsing green dot
 - **Garage tabs** — bike showcase in the feed section (Lucille: Suzuki GSX750F, Kawi: Kawasaki EN500), side by side with Instagram on desktop
 - **Social links** — Facebook, Snapchat, Telegram, LinkedIn, YouTube, TikTok via Font Awesome
 - **Instagram feed** — SnapWidget embed with latest posts
-- **Global editable stats** — Supabase-backed stats row (Followers, Kilometers, Countries). Tap 3× within 3 seconds to open an in-app editor (password-gated, validated server-side via Vercel serverless function)
+- **Global editable stats** — Supabase-backed stats row (Followers, Kilometers, Countries). Tap 3× within 3 seconds to open an in-app editor (password-gated, validated server-side via Cloudflare Worker)
 - **Minimalist dark theme** — grid background, lime-green accents, custom serif heading, matching card components
 - **Responsive** — clamp-based sizing, two-column feed layout on desktop (≥768px)
 
