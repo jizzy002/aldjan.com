@@ -48,7 +48,7 @@ export default function StatsSection() {
 
     // Production path: call Vercel serverless API
     try {
-      const res = await fetch('/api/update-stats', {
+      const res = await fetch('https://stats.aldjan.workers.dev', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password, stats: updated }),

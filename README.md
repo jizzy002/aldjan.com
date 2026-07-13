@@ -62,43 +62,60 @@ src/
     FeedSection.jsx            — social links + Garage + Instagram embed (responsive two-column)
     Footer.jsx                 — copyright line
   imports/                     — helmet + bike images (WebP + PNG fallback)
-api/
-  update-stats.mjs             — Vercel serverless function: validates password, writes stats to Supabase
 public/
+  CNAME                        — custom domain (aldjan.com) for GitHub Pages
   sitemap.xml                  — search-engine sitemap
   robots.txt                   — crawl rules
   favicon.ico, *.png           — favicons + apple-touch-icon
+workers/
+  update-stats/index.js        — Cloudflare Worker source code (password validation + Supabase write)
+.github/
+  workflows/deploy.yml         — GitHub Actions: build + deploy to gh-pages
 ```
 
 ## Stack
 
-- React 19, Vite 5, Terser (minification)
+- React 19, Vite 8, Terser (minification)
 - Font Awesome 6.7.2 (CDN)
 - Google Fonts: DM Sans + Playfair Display
 - Supabase (database + RLS for stats)
-- Vercel serverless functions (password validation, secure writes)
-- Hosted on Vercel
+- Cloudflare Worker (password validation, secure writes)
+- Hosted on GitHub Pages
 
-## Deployment on Vercel
+## Deployment
 
-1. Connect the GitHub repo to Vercel
-2. Add these environment variables in Vercel project settings:
+The site deploys automatically via GitHub Actions on push to `master`:
 
-| Variable | Required for | Notes |
-|----------|-------------|-------|
-| `VITE_LASTFM_API_KEY` | Last.fm now-playing | Public (client-side) |
-| `VITE_LASTFM_USERNAME` | Last.fm now-playing | Public (client-side) |
-| `VITE_SUPABASE_URL` | Stats editor | Public (client-side) |
-| `VITE_SUPABASE_ANON_KEY` | Stats editor | Public (client-side, RLS-gated) |
-| `STATS_PASSWORD` | Stats editor | **Secret** — server-side only |
-| `SUPABASE_SERVICE_ROLE_KEY` | Stats editor | **Secret** — server-side only |
+1. Workflow builds the Vite project
+2. Output is published to the `gh-pages` branch
+3. GitHub Pages serves from `gh-pages` at `https://aldjan.com`
 
-3. Deploy — the `api/update-stats.mjs` function is auto-detected
+### GitHub Actions secrets
+
+Add these in **repo Settings → Secrets and variables → Actions**:
+
+| Secret | Required for | Notes |
+|--------|-------------|-------|
+| `VITE_SUPABASE_URL` | Vite build | Public (client-side) |
+| `VITE_SUPABASE_ANON_KEY` | Vite build | Public (client-side, RLS-gated) |
+
+### Cloudflare Worker
+
+The stats editor password is validated by a Cloudflare Worker at `stats.aldjan.workers.dev`.
+Worker variables set in the Cloudflare Dashboard:
+
+| Variable | Notes |
+|----------|-------|
+| `PASSWORD` | **Secret** — your chosen stats password |
+| `SUPABASE_URL` | Your Supabase project URL |
+| `SUPABASE_SERVICE_KEY` | **Secret** — Supabase service role key |
+
+The Worker source is archived at `workers/update-stats/index.js`.
 
 ### Security
 
 - `VITE_` env vars are bundled in the client — they are public by design
-- `STATS_PASSWORD` and `SUPABASE_SERVICE_ROLE_KEY` are set in Vercel only, **never** in `.env` or the client bundle
+- `PASSWORD` and `SUPABASE_SERVICE_KEY` are set in Cloudflare only, **never** in the client bundle
 - The Supabase service role bypasses RLS, so the password is the only gate for writing stats
 
 ## Dev notes
