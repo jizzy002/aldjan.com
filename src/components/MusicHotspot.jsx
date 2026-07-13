@@ -95,7 +95,7 @@ export default function MusicHotspot({
           opacity: musicHintState === 'showing' ? 1 : 0,
           transition: 'opacity 1.5s ease',
         }}>
-          ♫ he is listening to something! ♫
+          ♫ he is listening to something ♫
         </span>
       )}
 
