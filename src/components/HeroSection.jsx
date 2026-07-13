@@ -106,7 +106,7 @@ export default function HeroSection({ nowPlaying, recentTracks, musicHintState, 
           letterSpacing: '-0.015em',
           textAlign: 'center',
         }}>
-          Aldin J.
+          Aldin Jandrić
         </h1>
 
         {/* Tagline row */}
