@@ -1,8 +1,87 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import helmetWebp from '../imports/LS2-strobe2_3D.webp'
 import helmetPng from '../imports/LS2-strobe2_3D.png'
 import MusicHotspot from './MusicHotspot'
 import StatsSection from './StatsSection'
+
+function LetterDrift({ text }) {
+  const containerRef = useRef(null)
+  const [cursor, setCursor] = useState({ x: 0, y: 0 })
+  const [hovering, setHovering] = useState(false)
+  const rects = useRef([])
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    function measure() {
+      rects.current = [...el.children].map(child => {
+        const r = child.getBoundingClientRect()
+        return { cx: r.left + r.width / 2, cy: r.top + r.height / 2 }
+      })
+    }
+
+    function onMove(e) {
+      setCursor({ x: e.clientX, y: e.clientY })
+    }
+    function onEnter() { measure(); setHovering(true) }
+    function onLeave() { setHovering(false) }
+
+    el.addEventListener('mousemove', onMove)
+    el.addEventListener('mouseenter', onEnter)
+    el.addEventListener('mouseleave', onLeave)
+
+    return () => {
+      el.removeEventListener('mousemove', onMove)
+      el.removeEventListener('mouseenter', onEnter)
+      el.removeEventListener('mouseleave', onLeave)
+    }
+  }, [])
+
+  return (
+    <h1 ref={containerRef} style={{
+      fontFamily: "'Playfair Display', Georgia, serif",
+      fontSize: 'clamp(28px, 5vw, 42px)',
+      fontWeight: 400,
+      color: '#f0ebe0',
+      margin: '20px 0 clamp(16px, 2vh, 28px)',
+      letterSpacing: '-0.015em',
+      textAlign: 'center',
+      display: 'inline-flex',
+      justifyContent: 'center',
+      flexWrap: 'nowrap',
+      cursor: 'default',
+      userSelect: 'none',
+    }}>
+      {[...text].map((ch, i) => {
+        let scale = 1
+        if (hovering && rects.current[i]) {
+          const { cx, cy } = rects.current[i]
+          const dx = cursor.x - cx
+          const dy = cursor.y - cy
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          const maxDist = 50
+          if (dist < maxDist) {
+            scale = 1 + (1 - dist / maxDist) * 0.15
+          }
+        }
+        return (
+          <span
+            key={i}
+            style={{
+              display: 'inline-block',
+              transform: `scale(${scale})`,
+              transition: 'transform 0.08s ease-out',
+              whiteSpace: ch === ' ' ? 'pre' : undefined,
+            }}
+          >
+            {ch === ' ' ? '\u00A0' : ch}
+          </span>
+        )
+      })}
+    </h1>
+  )
+}
 
 const HOTSPOTS = [
   { id: 0, label: 'Instagram',  href: 'https://instagram.com/aldjan.pov', x: 27,  y: 67 },
@@ -97,17 +176,7 @@ export default function HeroSection({ nowPlaying, recentTracks, musicHintState, 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '100%' }}>
 
         {/* Name */}
-        <h1 style={{
-          fontFamily: "'Playfair Display', Georgia, serif",
-          fontSize: 'clamp(28px, 5vw, 42px)',
-          fontWeight: 400,
-          color: '#f0ebe0',
-          margin: '20px 0 clamp(16px, 2vh, 28px)',
-          letterSpacing: '-0.015em',
-          textAlign: 'center',
-        }}>
-          Aldin Jandrić
-        </h1>
+        <LetterDrift text="Aldin Jandrić" />
 
         {/* Tagline row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 'clamp(36px, 6vh, 54px)' }}>
