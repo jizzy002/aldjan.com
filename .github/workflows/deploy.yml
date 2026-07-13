@@ -10,6 +10,8 @@ jobs:
     env:
       VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
       VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      VITE_LASTFM_API_KEY: ${{ secrets.VITE_LASTFM_API_KEY }}
+      VITE_LASTFM_USERNAME: ${{ secrets.VITE_LASTFM_USERNAME }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
