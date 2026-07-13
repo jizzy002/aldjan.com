@@ -74,6 +74,8 @@ export default function HeroSection({ nowPlaying, recentTracks, musicHintState, 
           linear-gradient(90deg, rgba(200,220,20,0.04) 1px, transparent 1px)
         `,
         backgroundSize: '48px 48px',
+        maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
       }} />
 
       {/* Central glow */}

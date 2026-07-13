@@ -2,7 +2,7 @@
 
 Minimalist motorcycle-rider landing page. Built with **React 19** + **Vite 8**.
 
-**Live:** [dev.aldjan.com](https://dev.aldjan.com)
+**Live:** [aldjan.com](https://aldjan.com) · **Preview:** [`aldjan.pages.dev`](https://aldjan.pages.dev)
 
 ## Features
 
@@ -37,7 +37,7 @@ npm run build      # production build to dist/
 
 ### Dev-only env vars
 
-These are never bundled in production — only used as a fallback when the Vercel API is unreachable:
+These are never bundled in production — only used as a fallback when the Cloudflare Worker is unreachable:
 
 ```env
 VITE_STATS_PASSWORD=your_dev_password
@@ -62,15 +62,12 @@ src/
     FeedSection.jsx            — social links + Garage + Instagram embed (responsive two-column)
     Footer.jsx                 — copyright line
   imports/                     — helmet + bike images (WebP + PNG fallback)
-public/
-  CNAME                        — custom domain (aldjan.com) for GitHub Pages
-  sitemap.xml                  — search-engine sitemap
-  robots.txt                   — crawl rules
-  favicon.ico, *.png           — favicons + apple-touch-icon
-workers/
-  update-stats/index.js        — Cloudflare Worker source code (password validation + Supabase write)
-.github/
-  workflows/deploy.yml         — GitHub Actions: build + deploy to gh-pages
+  public/
+    sitemap.xml                  — search-engine sitemap
+    robots.txt                   — crawl rules
+    favicon.ico, *.png           — favicons + apple-touch-icon
+  workers/
+    update-stats/index.js        — Cloudflare Worker source code (password validation + Supabase write)
 ```
 
 ## Stack
@@ -80,24 +77,22 @@ workers/
 - Google Fonts: DM Sans + Playfair Display
 - Supabase (database + RLS for stats)
 - Cloudflare Worker (password validation, secure writes)
-- Hosted on GitHub Pages
+- Hosted on Cloudflare Pages
 
 ## Deployment
 
-The site deploys automatically via GitHub Actions on push to `master`:
+The site deploys automatically via Cloudflare Pages on push to `master`.
 
-1. Workflow builds the Vite project
-2. Output is published to the `gh-pages` branch
-3. GitHub Pages serves from `gh-pages` at `https://aldjan.com`
+### Environment variables
 
-### GitHub Actions secrets
+Set these in **Cloudflare Dashboard → Workers & Pages → your project → Settings → Environment variables**:
 
-Add these in **repo Settings → Secrets and variables → Actions**:
-
-| Secret | Required for | Notes |
-|--------|-------------|-------|
-| `VITE_SUPABASE_URL` | Vite build | Public (client-side) |
-| `VITE_SUPABASE_ANON_KEY` | Vite build | Public (client-side, RLS-gated) |
+| Variable | Notes |
+|----------|-------|
+| `VITE_SUPABASE_URL` | Public (client-side) |
+| `VITE_SUPABASE_ANON_KEY` | Public (client-side, RLS-gated) |
+| `VITE_LASTFM_API_KEY` | Public (client-side) |
+| `VITE_LASTFM_USERNAME` | Public (client-side) |
 
 ### Cloudflare Worker
 
