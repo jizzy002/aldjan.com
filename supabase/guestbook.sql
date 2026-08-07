@@ -37,7 +37,7 @@ grant insert, delete on public.guestbook_reactions to authenticated;
 create policy "guestbook_entries_select" on public.guestbook_entries
   for select using (true);
 
--- signed-in users insert their own entries
+-- signed-in users insert entries; identity is set server-side from the JWT
 create policy "guestbook_entries_insert" on public.guestbook_entries
   for insert with check (auth.uid() = user_id);
 
@@ -59,3 +59,32 @@ create policy "guestbook_reactions_insert" on public.guestbook_reactions
 -- signed-in users delete their own reactions
 create policy "guestbook_reactions_delete" on public.guestbook_reactions
   for delete using (auth.uid() = user_id);
+
+-- Identity and limits are enforced server-side: never trust the client payload.
+-- The trigger derives user_id / github_username / github_avatar from the JWT
+-- and hard-caps entries per account, so direct REST calls can't spam or spoof.
+create or replace function public.enforce_guestbook_entry_policy()
+returns trigger language plpgsql security definer
+set search_path = public
+as $$
+begin
+  new.user_id := auth.uid();
+  new.github_username := coalesce(auth.jwt() -> 'user_metadata' ->> 'user_name', 'github-user');
+  new.github_avatar  := coalesce(auth.jwt() -> 'user_metadata' ->> 'avatar_url', '');
+
+  if new.user_id is null then
+    raise exception 'Not authenticated';
+  end if;
+
+  if (select count(*) from public.guestbook_entries where user_id = new.user_id) >= 3 then
+    raise exception 'Max 3 notes per account';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists guestbook_entries_before_insert on public.guestbook_entries;
+create trigger guestbook_entries_before_insert
+  before insert on public.guestbook_entries
+  for each row execute function public.enforce_guestbook_entry_policy();

@@ -104,14 +104,10 @@ export default function GuestbookSection() {
 
     const { error: insertError } = await supabase
       .from('guestbook_entries')
-      .insert({
-        user_id: session.user.id,
-        github_username: session.user.user_metadata?.user_name || 'github-user',
-        github_avatar: session.user.user_metadata?.avatar_url || '',
-        message: text,
-      })
+      .insert({ message: text })
     if (insertError) {
-      setError('Failed to post — try again')
+      setError(insertError.message?.includes('Max 3 notes per account') ? 'Max 3 notes per account' : 'Failed to post — try again')
+      if (insertError.message?.includes('Max 3 notes per account')) await loadUsedNotes(session.user.id)
       setPosting(false)
       return
     }
