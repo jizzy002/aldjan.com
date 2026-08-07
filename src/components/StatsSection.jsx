@@ -68,45 +68,14 @@ export default function StatsSection() {
       }
 
       const data = await res.json()
-      if (import.meta.env.DEV) {
-        throw new Error('API unavailable, trying dev fallback')
-      }
       setError(data.error || 'Failed to save')
       setSaving(false)
       return
     } catch {
-      // Dev fallback: local password + direct Supabase write
-      if (!import.meta.env.DEV) {
-        setError('Failed to save')
-        setSaving(false)
-        return
-      }
-    }
-
-    const devPassword = import.meta.env.VITE_STATS_PASSWORD
-    if (password !== devPassword) {
-      setError('Wrong password')
+      setError('Failed to save')
       setSaving(false)
       return
     }
-
-    if (!supabase) {
-      setStats(updated)
-      setShowModal(false)
-      setSaving(false)
-      return
-    }
-
-    supabase.from('stats').update({ data: updated }).eq('id', 1)
-      .then(() => {
-        setStats(updated)
-        setShowModal(false)
-        setSaving(false)
-      })
-      .catch(() => {
-        setError('Failed to save')
-        setSaving(false)
-      })
   }
 
   const rowStyle = {

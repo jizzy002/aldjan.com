@@ -37,11 +37,7 @@ npm run build      # production build to dist/
 
 ### Dev-only env vars
 
-These are never bundled in production — only used as a fallback when the Cloudflare Worker is unreachable:
-
-```env
-VITE_STATS_PASSWORD=your_dev_password
-```
+The stats editor always saves through the Cloudflare Worker (password-validated). There is no direct-write fallback.
 
 ## Project Structure
 
@@ -111,7 +107,7 @@ The Worker source is archived at `workers/update-stats/index.js`.
 
 - `VITE_` env vars are bundled in the client — they are public by design
 - `PASSWORD` and `SUPABASE_SERVICE_KEY` are set in Cloudflare only, **never** in the client bundle
-- The Supabase service role bypasses RLS, so the password is the only gate for writing stats
+- The `stats` table allows reads only (`supabase/stats-rls.sql`); all writes require the service role, so the Cloudflare Worker password is the only gate for writing stats
 
 ## Dev notes
 
