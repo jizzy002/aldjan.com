@@ -71,24 +71,32 @@ create policy "guestbook_reactions_delete" on public.guestbook_reactions
 
 -- Identity and limits are enforced server-side: never trust the client payload.
 -- The trigger derives user_id / github_username / github_avatar / display_name /
--- profile_email from the JWT and hard-caps entries per email (falling back to
--- per-user when no email is present), so direct REST calls can't spam or spoof.
+-- profile_email from the authenticated user row (auth.users) — NOT the JWT
+-- metadata snapshot, which can lag after updateUser — and hard-caps entries per
+-- email (falling back to per-user when no email is present), so direct REST
+-- calls can't spam or spoof.
 create or replace function public.enforce_guestbook_entry_policy()
 returns trigger language plpgsql security definer
 set search_path = public
 as $$
 declare
   entry_count int;
+  user_meta jsonb;
 begin
   new.user_id := auth.uid();
-  new.github_username := coalesce(auth.jwt() -> 'user_metadata' ->> 'user_name', '');
-  new.github_avatar  := coalesce(auth.jwt() -> 'user_metadata' ->> 'avatar_url', '');
-  new.display_name   := coalesce(auth.jwt() -> 'user_metadata' ->> 'display_name', '');
-  new.profile_email  := coalesce(auth.jwt() ->> 'email', auth.jwt() -> 'user_metadata' ->> 'email', '');
 
   if new.user_id is null then
     raise exception 'Not authenticated';
   end if;
+
+  select raw_user_meta_data into user_meta
+  from auth.users
+  where id = new.user_id;
+
+  new.github_username := coalesce(user_meta ->> 'user_name', '');
+  new.github_avatar  := coalesce(user_meta ->> 'avatar_url', '');
+  new.display_name   := coalesce(user_meta ->> 'display_name', '');
+  new.profile_email  := coalesce(auth.jwt() ->> 'email', user_meta ->> 'email', '');
 
   if new.profile_email <> '' then
     select count(*) into entry_count from public.guestbook_entries where profile_email = new.profile_email;
