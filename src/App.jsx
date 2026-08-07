@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import useNowPlaying from './hooks/useNowPlaying'
 import HeroSection from './components/HeroSection'
 import FeedSection from './components/FeedSection'
+import GuestbookSection from './components/GuestbookSection'
 import Footer from './components/Footer'
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
         onScrollToFeed={scrollToFeed}
       />
       <FeedSection ref={feedRef} />
+      <GuestbookSection />
       <Footer />
     </div>
   )
