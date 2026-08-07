@@ -8,3 +8,5 @@ node_modules/
 dist/
 # transient session plans
 .opencode/plans/
+# internal design specs and plans (kept locally only)
+docs/superpowers/
