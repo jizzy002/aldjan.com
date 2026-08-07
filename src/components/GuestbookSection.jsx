@@ -30,6 +30,12 @@ export default function GuestbookSection() {
   const [error, setError] = useState('')
   const [authError, setAuthError] = useState('')
   const [usedNotes, setUsedNotes] = useState(0)
+  const [email, setEmail] = useState('')
+  const [emailSent, setEmailSent] = useState(false)
+  const [emailSending, setEmailSending] = useState(false)
+  const [displayName, setDisplayName] = useState('')
+  const [savingName, setSavingName] = useState(false)
+  const [nameError, setNameError] = useState('')
 
   const loadEntries = useCallback(async () => {
     if (!supabase) return
@@ -41,12 +47,14 @@ export default function GuestbookSection() {
     if (data) setEntries(data)
   }, [])
 
-  const loadUsedNotes = useCallback(async userId => {
-    if (!supabase || !userId) return
-    const { count } = await supabase
+  const loadUsedNotes = useCallback(async user => {
+    if (!supabase || !user) return
+    const profileEmail = (user.email || user.user_metadata?.email || '').toLowerCase()
+    let query = supabase
       .from('guestbook_entries')
       .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
+    query = profileEmail ? query.eq('profile_email', profileEmail) : query.eq('user_id', user.id)
+    const { count } = await query
     setUsedNotes(count ?? 0)
   }, [])
 
@@ -57,11 +65,11 @@ export default function GuestbookSection() {
     }
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session)
-      if (data.session) loadUsedNotes(data.session.user.id)
+      if (data.session) loadUsedNotes(data.session.user)
     })
     const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession)
-      if (newSession) loadUsedNotes(newSession.user.id)
+      if (newSession) loadUsedNotes(newSession.user)
     })
     loadEntries().finally(() => setLoading(false))
     return () => sub.subscription.unsubscribe()
@@ -76,8 +84,42 @@ export default function GuestbookSection() {
     if (error) setAuthError('Login cancelled or failed')
   }
 
+  async function handleEmailSignIn() {
+    const value = email.trim()
+    if (!value || emailSending) return
+    setAuthError('')
+    setEmailSending(true)
+    const { error } = await supabase.auth.signInWithOtp({
+      email: value,
+      options: { emailRedirectTo: window.location.origin },
+    })
+    setEmailSending(false)
+    if (error) {
+      setAuthError('Could not send login link — check the email address')
+      return
+    }
+    setEmailSent(true)
+  }
+
+  async function handleSaveName() {
+    const name = displayName.trim()
+    if (!name || savingName) return
+    setNameError('')
+    setSavingName(true)
+    const { error } = await supabase.auth.updateUser({ data: { display_name: name } })
+    setSavingName(false)
+    if (error) {
+      setNameError('Could not save name — try again')
+      return
+    }
+    setSession(prev => (prev ? { ...prev, user: { ...prev.user, user_metadata: { ...prev.user.user_metadata, display_name: name } } } : prev))
+  }
+
   async function handleSignOut() {
     await supabase.auth.signOut()
+    setEmailSent(false)
+    setEmail('')
+    setMessage('')
   }
 
   async function handlePost() {
@@ -92,10 +134,12 @@ export default function GuestbookSection() {
       return
     }
 
-    const { count } = await supabase
+    const profileEmail = (session.user.email || session.user.user_metadata?.email || '').toLowerCase()
+    let query = supabase
       .from('guestbook_entries')
       .select('id', { count: 'exact', head: true })
-      .eq('user_id', session.user.id)
+    query = profileEmail ? query.eq('profile_email', profileEmail) : query.eq('user_id', session.user.id)
+    const { count } = await query
     if (count >= MAX_NOTES) {
       setError(`Max ${MAX_NOTES} notes per account`)
       setPosting(false)
@@ -107,7 +151,7 @@ export default function GuestbookSection() {
       .insert({ message: text })
     if (insertError) {
       setError(insertError.message?.includes('Max 3 notes per account') ? 'Max 3 notes per account' : 'Failed to post — try again')
-      if (insertError.message?.includes('Max 3 notes per account')) await loadUsedNotes(session.user.id)
+      if (insertError.message?.includes('Max 3 notes per account')) await loadUsedNotes(session.user)
       setPosting(false)
       return
     }
@@ -156,7 +200,21 @@ export default function GuestbookSection() {
   }
 
   const isOwner = session?.user?.user_metadata?.user_name === OWNER_USERNAME
+  const needsName = !!session && !session.user.user_metadata?.user_name && !session.user.user_metadata?.display_name
   const remainingNotes = MAX_NOTES - usedNotes
+
+  function entryName(entry) {
+    return entry.display_name || entry.github_username || 'Guest'
+  }
+
+  function entryAvatar(entry) {
+    if (entry.github_avatar) return entry.github_avatar
+    return null
+  }
+
+  function avatarFallback(name) {
+    return (name.trim()[0] || '?').toUpperCase()
+  }
 
   function reactionCounts(entry) {
     const counts = {}
@@ -194,15 +252,25 @@ export default function GuestbookSection() {
           {session ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                <img
-                  src={session.user.user_metadata?.avatar_url || ''}
-                  alt=""
-                  width={28}
-                  height={28}
-                  style={{ borderRadius: '50%', objectFit: 'cover', background: '#111' }}
-                />
+                {session.user.user_metadata?.avatar_url ? (
+                  <img
+                    src={session.user.user_metadata.avatar_url}
+                    alt=""
+                    width={28}
+                    height={28}
+                    style={{ borderRadius: '50%', objectFit: 'cover', background: '#111' }}
+                  />
+                ) : (
+                  <span style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    width: 28, height: 28, borderRadius: '50%', background: 'rgba(200,220,20,0.15)',
+                    border: '1px solid rgba(200,220,20,0.4)', color: '#c8dc14', fontSize: 12,
+                  }}>
+                    {avatarFallback(session.user.user_metadata?.display_name || 'G')}
+                  </span>
+                )}
                 <span style={{ fontSize: 13, color: '#f0ebe0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {session.user.user_metadata?.user_name || 'Signed in'}
+                  {session.user.user_metadata?.user_name || session.user.user_metadata?.display_name || 'Signed in'}
                 </span>
               </div>
               <button onClick={handleSignOut} style={{
@@ -217,17 +285,79 @@ export default function GuestbookSection() {
               {authError && (
                 <div style={{ fontSize: 11, color: 'rgba(255,80,80,0.8)', marginBottom: 8 }}>{authError}</div>
               )}
-              <button onClick={handleSignIn} style={{
-                padding: '8px 18px', background: 'rgba(200,220,20,0.15)', border: '1px solid rgba(200,220,20,0.5)',
-                borderRadius: 4, color: '#c8dc14', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
-                fontWeight: 500, letterSpacing: '0.04em',
-              }}>
-                Sign in with GitHub
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+                <button onClick={handleSignIn} style={{
+                  padding: '8px 18px', background: 'rgba(200,220,20,0.15)', border: '1px solid rgba(200,220,20,0.5)',
+                  borderRadius: 4, color: '#c8dc14', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
+                  fontWeight: 500, letterSpacing: '0.04em',
+                }}>
+                  Sign in with GitHub
+                </button>
+
+                {emailSent ? (
+                  <div style={{ fontSize: 12, color: 'rgba(240,235,224,0.7)', maxWidth: 280 }}>
+                    Check your inbox — click the login link to sign in.
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', width: '100%', maxWidth: 300, justifyContent: 'center' }}>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      placeholder="or enter your email"
+                      onKeyDown={e => { if (e.key === 'Enter') handleEmailSignIn() }}
+                      style={{
+                        flex: 1, minWidth: 0, padding: '8px 12px', background: '#111',
+                        border: '1px solid rgba(200,220,20,0.3)', borderRadius: 4,
+                        color: '#f0ebe0', fontSize: 12, outline: 'none', fontFamily: 'inherit',
+                      }}
+                    />
+                    <button onClick={handleEmailSignIn} disabled={emailSending || !email.trim()} style={{
+                      padding: '8px 14px', background: 'rgba(200,220,20,0.15)', border: '1px solid rgba(200,220,20,0.5)',
+                      borderRadius: 4, color: '#c8dc14', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
+                      opacity: emailSending || !email.trim() ? 0.4 : 1,
+                    }}>
+                      {emailSending ? 'Sending…' : 'Get link'}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
-          {session && (
+          {session && needsName && (
+            <div style={{ marginBottom: 20, padding: 12, background: '#0d0d0d', border: '1px solid rgba(200,220,20,0.25)', borderRadius: 4 }}>
+              <div style={{ fontSize: 12, color: '#f0ebe0', marginBottom: 8 }}>
+                Almost there — what should we call you?
+              </div>
+              {nameError && (
+                <div style={{ fontSize: 11, color: 'rgba(255,80,80,0.8)', marginBottom: 8 }}>{nameError}</div>
+              )}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  value={displayName}
+                  onChange={e => setDisplayName(e.target.value)}
+                  maxLength={24}
+                  placeholder="Your name"
+                  onKeyDown={e => { if (e.key === 'Enter') handleSaveName() }}
+                  style={{
+                    flex: 1, minWidth: 0, padding: '8px 12px', background: '#111',
+                    border: '1px solid rgba(200,220,20,0.3)', borderRadius: 4,
+                    color: '#f0ebe0', fontSize: 12, outline: 'none', fontFamily: 'inherit',
+                  }}
+                />
+                <button onClick={handleSaveName} disabled={savingName || !displayName.trim()} style={{
+                  padding: '7px 16px', background: 'rgba(200,220,20,0.15)', border: '1px solid rgba(200,220,20,0.5)',
+                  borderRadius: 4, color: '#c8dc14', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
+                  opacity: savingName || !displayName.trim() ? 0.4 : 1,
+                }}>
+                  {savingName ? 'Saving…' : 'Save'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {session && !needsName && (
             <div style={{ marginBottom: 20 }}>
               <textarea
                 value={message}
@@ -279,15 +409,25 @@ export default function GuestbookSection() {
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-                        <img
-                          src={entry.github_avatar}
-                          alt=""
-                          width={20}
-                          height={20}
-                          style={{ borderRadius: '50%', objectFit: 'cover', background: '#111' }}
-                        />
+                        {entryAvatar(entry) ? (
+                          <img
+                            src={entryAvatar(entry)}
+                            alt=""
+                            width={20}
+                            height={20}
+                            style={{ borderRadius: '50%', objectFit: 'cover', background: '#111' }}
+                          />
+                        ) : (
+                          <span style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            width: 20, height: 20, borderRadius: '50%', background: 'rgba(200,220,20,0.15)',
+                            border: '1px solid rgba(200,220,20,0.4)', color: '#c8dc14', fontSize: 10,
+                          }}>
+                            {avatarFallback(entryName(entry))}
+                          </span>
+                        )}
                         <span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(240,235,224,0.6)' }}>
-                          {entry.github_username}
+                          {entryName(entry)}
                         </span>
                         <span style={{ fontSize: 10, color: 'rgba(240,235,224,0.25)' }}>
                           {timeAgo(entry.created_at)}

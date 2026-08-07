@@ -6,9 +6,15 @@ create table if not exists public.guestbook_entries (
   user_id uuid not null references auth.users (id) on delete cascade,
   github_username text not null,
   github_avatar text not null,
+  display_name text not null default '',
+  profile_email text not null default '',
   message text not null check (char_length(message) <= 300),
   created_at timestamptz not null default now()
 );
+
+-- idempotent migration for databases that already created the table
+alter table public.guestbook_entries add column if not exists display_name text not null default '';
+alter table public.guestbook_entries add column if not exists profile_email text not null default '';
 
 create table if not exists public.guestbook_reactions (
   id uuid primary key default gen_random_uuid(),
@@ -24,6 +30,9 @@ create index if not exists guestbook_entries_created_at_idx
 
 create index if not exists guestbook_reactions_entry_idx
   on public.guestbook_reactions (entry_id);
+
+create index if not exists guestbook_entries_profile_email_idx
+  on public.guestbook_entries (profile_email) where profile_email <> '';
 
 alter table public.guestbook_entries enable row level security;
 alter table public.guestbook_reactions enable row level security;
@@ -61,22 +70,33 @@ create policy "guestbook_reactions_delete" on public.guestbook_reactions
   for delete using (auth.uid() = user_id);
 
 -- Identity and limits are enforced server-side: never trust the client payload.
--- The trigger derives user_id / github_username / github_avatar from the JWT
--- and hard-caps entries per account, so direct REST calls can't spam or spoof.
+-- The trigger derives user_id / github_username / github_avatar / display_name /
+-- profile_email from the JWT and hard-caps entries per email (falling back to
+-- per-user when no email is present), so direct REST calls can't spam or spoof.
 create or replace function public.enforce_guestbook_entry_policy()
 returns trigger language plpgsql security definer
 set search_path = public
 as $$
+declare
+  entry_count int;
 begin
   new.user_id := auth.uid();
-  new.github_username := coalesce(auth.jwt() -> 'user_metadata' ->> 'user_name', 'github-user');
+  new.github_username := coalesce(auth.jwt() -> 'user_metadata' ->> 'user_name', '');
   new.github_avatar  := coalesce(auth.jwt() -> 'user_metadata' ->> 'avatar_url', '');
+  new.display_name   := coalesce(auth.jwt() -> 'user_metadata' ->> 'display_name', '');
+  new.profile_email  := coalesce(auth.jwt() ->> 'email', auth.jwt() -> 'user_metadata' ->> 'email', '');
 
   if new.user_id is null then
     raise exception 'Not authenticated';
   end if;
 
-  if (select count(*) from public.guestbook_entries where user_id = new.user_id) >= 3 then
+  if new.profile_email <> '' then
+    select count(*) into entry_count from public.guestbook_entries where profile_email = new.profile_email;
+  else
+    select count(*) into entry_count from public.guestbook_entries where user_id = new.user_id;
+  end if;
+
+  if entry_count >= 3 then
     raise exception 'Max 3 notes per account';
   end if;
 
