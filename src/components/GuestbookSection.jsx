@@ -69,7 +69,10 @@ export default function GuestbookSection() {
 
   async function handleSignIn() {
     setAuthError('')
-    const { error } = await supabase.auth.signInWithOAuth({ provider: 'github' })
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: { redirectTo: window.location.origin },
+    })
     if (error) setAuthError('Login cancelled or failed')
   }
 
