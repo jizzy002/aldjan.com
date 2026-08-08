@@ -43,14 +43,17 @@ grant select on public.guestbook_reactions to anon, authenticated;
 grant insert, delete on public.guestbook_reactions to authenticated;
 
 -- anyone can read entries
+drop policy if exists "guestbook_entries_select" on public.guestbook_entries;
 create policy "guestbook_entries_select" on public.guestbook_entries
   for select using (true);
 
 -- signed-in users insert entries; identity is set server-side from the JWT
+drop policy if exists "guestbook_entries_insert" on public.guestbook_entries;
 create policy "guestbook_entries_insert" on public.guestbook_entries
   for insert with check (auth.uid() = user_id);
 
 -- owner (GitHub username jizzy002) or the author can delete
+drop policy if exists "guestbook_entries_delete" on public.guestbook_entries;
 create policy "guestbook_entries_delete" on public.guestbook_entries
   for delete using (
     auth.uid() = user_id
@@ -58,14 +61,17 @@ create policy "guestbook_entries_delete" on public.guestbook_entries
   );
 
 -- anyone can read reactions
+drop policy if exists "guestbook_reactions_select" on public.guestbook_reactions;
 create policy "guestbook_reactions_select" on public.guestbook_reactions
   for select using (true);
 
 -- signed-in users insert their own reactions
+drop policy if exists "guestbook_reactions_insert" on public.guestbook_reactions;
 create policy "guestbook_reactions_insert" on public.guestbook_reactions
   for insert with check (auth.uid() = user_id);
 
 -- signed-in users delete their own reactions
+drop policy if exists "guestbook_reactions_delete" on public.guestbook_reactions;
 create policy "guestbook_reactions_delete" on public.guestbook_reactions
   for delete using (auth.uid() = user_id);
 
@@ -75,6 +81,9 @@ create policy "guestbook_reactions_delete" on public.guestbook_reactions
 -- metadata snapshot, which can lag after updateUser — and hard-caps entries per
 -- email (falling back to per-user when no email is present), so direct REST
 -- calls can't spam or spoof.
+-- Multi-provider support: GitHub populates user_name/avatar_url; Google falls
+-- back to full_name/name and avatar_url/picture, so display_name is set and the
+-- name prompt is skipped. github_username stays empty for non-GitHub providers.
 create or replace function public.enforce_guestbook_entry_policy()
 returns trigger language plpgsql security definer
 set search_path = public
@@ -94,8 +103,8 @@ begin
   where id = new.user_id;
 
   new.github_username := coalesce(user_meta ->> 'user_name', '');
-  new.github_avatar  := coalesce(user_meta ->> 'avatar_url', '');
-  new.display_name   := coalesce(user_meta ->> 'display_name', '');
+  new.github_avatar  := coalesce(user_meta ->> 'avatar_url', user_meta ->> 'picture', '');
+  new.display_name   := coalesce(user_meta ->> 'display_name', user_meta ->> 'full_name', user_meta ->> 'name', '');
   new.profile_email  := coalesce(auth.jwt() ->> 'email', user_meta ->> 'email', '');
 
   if new.profile_email <> '' then

@@ -6,6 +6,18 @@ const MAX_NOTES = 3
 const MAX_MESSAGE_LENGTH = 300
 const EMOJIS = ['👍', '🔥', '❤️', '😄']
 
+function loadGis() {
+  return new Promise((resolve, reject) => {
+    if (window.google?.accounts?.oauth2) return resolve()
+    const s = document.createElement('script')
+    s.src = 'https://accounts.google.com/gsi/client'
+    s.async = true
+    s.onload = () => resolve()
+    s.onerror = () => reject(new Error('Failed to load Google sign-in'))
+    document.head.appendChild(s)
+  })
+}
+
 function timeAgo(iso) {
   const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
   if (seconds < 60) return 'just now'
@@ -30,9 +42,6 @@ export default function GuestbookSection() {
   const [error, setError] = useState('')
   const [authError, setAuthError] = useState('')
   const [usedNotes, setUsedNotes] = useState(0)
-  const [email, setEmail] = useState('')
-  const [emailSent, setEmailSent] = useState(false)
-  const [emailSending, setEmailSending] = useState(false)
   const [displayName, setDisplayName] = useState('')
   const [savingName, setSavingName] = useState(false)
   const [nameError, setNameError] = useState('')
@@ -84,21 +93,34 @@ export default function GuestbookSection() {
     if (error) setAuthError('Login cancelled or failed')
   }
 
-  async function handleEmailSignIn() {
-    const value = email.trim()
-    if (!value || emailSending) return
+  async function handleGoogleSignIn() {
     setAuthError('')
-    setEmailSending(true)
-    const { error } = await supabase.auth.signInWithOtp({
-      email: value,
-      options: { emailRedirectTo: window.location.origin },
-    })
-    setEmailSending(false)
-    if (error) {
-      setAuthError('Could not send login link — check the email address')
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+    if (!clientId) {
+      setAuthError('Google sign-in is not configured')
       return
     }
-    setEmailSent(true)
+    try {
+      await loadGis()
+      const client = window.google.accounts.oauth2.initTokenClient({
+        client_id: clientId,
+        scope: 'openid email profile',
+        callback: async response => {
+          if (response.error || !response.id_token) {
+            setAuthError('Login cancelled or failed')
+            return
+          }
+          const { error } = await supabase.auth.signInWithIdToken({
+            provider: 'google',
+            token: response.id_token,
+          })
+          if (error) setAuthError('Login cancelled or failed')
+        },
+      })
+      client.requestAccessToken()
+    } catch {
+      setAuthError('Could not start Google sign-in')
+    }
   }
 
   async function handleSaveName() {
@@ -117,8 +139,6 @@ export default function GuestbookSection() {
 
   async function handleSignOut() {
     await supabase.auth.signOut()
-    setEmailSent(false)
-    setEmail('')
     setMessage('')
   }
 
@@ -200,7 +220,9 @@ export default function GuestbookSection() {
   }
 
   const isOwner = session?.user?.user_metadata?.user_name === OWNER_USERNAME
-  const needsName = !!session && !session.user.user_metadata?.user_name && !session.user.user_metadata?.display_name
+  const needsName = !!session && !session.user.user_metadata?.user_name
+    && !session.user.user_metadata?.display_name && !session.user.user_metadata?.full_name
+    && !session.user.user_metadata?.name
   const remainingNotes = MAX_NOTES - usedNotes
 
   function entryName(entry) {
@@ -270,7 +292,7 @@ export default function GuestbookSection() {
                   </span>
                 )}
                 <span style={{ fontSize: 13, color: '#f0ebe0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {session.user.user_metadata?.user_name || session.user.user_metadata?.display_name || 'Signed in'}
+                  {session.user.user_metadata?.user_name || session.user.user_metadata?.display_name || session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'Signed in'}
                 </span>
               </div>
               <button onClick={handleSignOut} style={{
@@ -285,42 +307,27 @@ export default function GuestbookSection() {
               {authError && (
                 <div style={{ fontSize: 11, color: 'rgba(255,80,80,0.8)', marginBottom: 8 }}>{authError}</div>
               )}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
-                <button onClick={handleSignIn} style={{
+              <div className="login-hint" style={{ fontSize: 11, color: 'rgba(240,235,224,0.35)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10 }}>
+                Login using
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button onClick={handleSignIn} className="login-btn" style={{
                   padding: '8px 18px', background: 'rgba(200,220,20,0.15)', border: '1px solid rgba(200,220,20,0.5)',
                   borderRadius: 4, color: '#c8dc14', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
-                  fontWeight: 500, letterSpacing: '0.04em',
+                  fontWeight: 500, letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 8,
                 }}>
-                  Sign in with GitHub
+                  <i className="fa-brands fa-github" />
+                  <span className="login-btn-label">Sign in with GitHub</span>
                 </button>
 
-                {emailSent ? (
-                  <div style={{ fontSize: 12, color: 'rgba(240,235,224,0.7)', maxWidth: 280 }}>
-                    Check your inbox — click the login link to sign in.
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', width: '100%', maxWidth: 300, justifyContent: 'center' }}>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      placeholder="or enter your email"
-                      onKeyDown={e => { if (e.key === 'Enter') handleEmailSignIn() }}
-                      style={{
-                        flex: 1, minWidth: 0, padding: '8px 12px', background: '#111',
-                        border: '1px solid rgba(200,220,20,0.3)', borderRadius: 4,
-                        color: '#f0ebe0', fontSize: 12, outline: 'none', fontFamily: 'inherit',
-                      }}
-                    />
-                    <button onClick={handleEmailSignIn} disabled={emailSending || !email.trim()} style={{
-                      padding: '8px 14px', background: 'rgba(200,220,20,0.15)', border: '1px solid rgba(200,220,20,0.5)',
-                      borderRadius: 4, color: '#c8dc14', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
-                      opacity: emailSending || !email.trim() ? 0.4 : 1,
-                    }}>
-                      {emailSending ? 'Sending…' : 'Get link'}
-                    </button>
-                  </div>
-                )}
+                <button onClick={handleGoogleSignIn} className="login-btn" style={{
+                  padding: '8px 18px', background: 'rgba(200,220,20,0.15)', border: '1px solid rgba(200,220,20,0.5)',
+                  borderRadius: 4, color: '#c8dc14', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
+                  fontWeight: 500, letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 8,
+                }}>
+                  <i className="fa-brands fa-google" />
+                  <span className="login-btn-label">Sign in with Google</span>
+                </button>
               </div>
             </div>
           )}

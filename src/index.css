@@ -78,4 +78,16 @@ button, a {
     flex: 1;
     min-width: 0;
   }
+  .login-hint {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .login-btn-label {
+    display: none;
+  }
+  .login-btn {
+    padding: 8px 12px;
+  }
 }
