@@ -8,7 +8,7 @@ const EMOJIS = ['👍', '🔥', '❤️', '😄']
 
 function loadGis() {
   return new Promise((resolve, reject) => {
-    if (window.google?.accounts?.oauth2) return resolve()
+    if (window.google?.accounts?.id) return resolve()
     const s = document.createElement('script')
     s.src = 'https://accounts.google.com/gsi/client'
     s.async = true
@@ -16,6 +16,17 @@ function loadGis() {
     s.onerror = () => reject(new Error('Failed to load Google sign-in'))
     document.head.appendChild(s)
   })
+}
+
+async function generateNonce() {
+  const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16)), b =>
+    b.toString(16).padStart(2, '0')
+  ).join('')
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(nonce))
+  const hashedNonce = Array.from(new Uint8Array(hash), b =>
+    b.toString(16).padStart(2, '0')
+  ).join('')
+  return [nonce, hashedNonce]
 }
 
 function timeAgo(iso) {
@@ -102,22 +113,25 @@ export default function GuestbookSection() {
     }
     try {
       await loadGis()
-      const client = window.google.accounts.oauth2.initTokenClient({
+      const [nonce, hashedNonce] = await generateNonce()
+      window.google.accounts.id.initialize({
         client_id: clientId,
-        scope: 'openid email profile',
         callback: async response => {
-          if (response.error || !response.id_token) {
+          if (response.error || !response.credential) {
             setAuthError('Login cancelled or failed')
             return
           }
           const { error } = await supabase.auth.signInWithIdToken({
             provider: 'google',
-            token: response.id_token,
+            token: response.credential,
+            nonce,
           })
           if (error) setAuthError('Login cancelled or failed')
         },
+        nonce: hashedNonce,
+        use_fedcm_for_prompt: true,
       })
-      client.requestAccessToken()
+      window.google.accounts.id.prompt()
     } catch {
       setAuthError('Could not start Google sign-in')
     }
