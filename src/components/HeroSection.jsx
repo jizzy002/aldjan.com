@@ -144,19 +144,6 @@ export default function HeroSection({ nowPlaying, recentTracks, musicHintState, 
         padding: '48px 24px 32px',
       }}
     >
-      {/* Grid background */}
-      <div aria-hidden style={{
-        position: 'absolute', inset: 0, zIndex: 0,
-        pointerEvents: 'none',
-        backgroundImage: `
-          linear-gradient(rgba(200,220,20,0.04) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(200,220,20,0.04) 1px, transparent 1px)
-        `,
-        backgroundSize: '48px 48px',
-        maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
-        WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
-      }} />
-
       {/* Central glow */}
       <div aria-hidden style={{
         position: 'absolute', zIndex: 0,
@@ -217,7 +204,7 @@ export default function HeroSection({ nowPlaying, recentTracks, musicHintState, 
           {/* Vignette */}
           <div aria-hidden style={{
             position: 'absolute', inset: 0, borderRadius: '50%',
-            background: 'radial-gradient(circle at 50% 50%, transparent 75%, #080808 100%)',
+            background: 'radial-gradient(circle at 50% 50%, transparent 75%, #000 100%)',
             pointerEvents: 'none',
           }} />
 
