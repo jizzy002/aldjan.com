@@ -10,3 +10,6 @@ dist/
 .opencode/plans/
 # internal design specs and plans (kept locally only)
 docs/superpowers/
+# AI/agent tooling (kept locally only)
+AGENTS.md
+.vscode/tasks.json
