@@ -5,7 +5,7 @@
 body {
   margin: 0;
   font-family: 'DM Sans', system-ui, sans-serif;
-  background: #080808;
+  background: #000;
   color: #ede8df;
   -webkit-font-smoothing: antialiased;
 }
@@ -40,6 +40,7 @@ button, a {
   0%, 100% { transform: translateY(0);   opacity: 0.6; }
   50%       { transform: translateY(5px); opacity: 1;   }
 }
+
 
 /* ── Social links ── */
 

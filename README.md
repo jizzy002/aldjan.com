@@ -13,7 +13,7 @@ Minimalist motorcycle-rider landing page. Built with **React 19** + **Vite 8**.
 - **Instagram feed** — SnapWidget embed with latest posts
 - **Global editable stats** — Supabase-backed stats row (Followers, Kilometers, Countries). Tap 3× within 3 seconds to open an in-app editor (password-gated, validated server-side via Cloudflare Worker)
 - **Guestbook** — visitors sign in with **GitHub** or **Google** and leave up to 3 notes with reactions. Identities and limits are enforced server-side (Supabase RLS + trigger). Google sign-in uses the **Google Identity Services** one-tap popup, so the URL bar never shows `supabase.co`
-- **Minimalist dark theme** — grid background, lime-green accents, custom serif heading, matching card components
+- **Minimalist dark theme** — plain black background with a site-wide lime grid (fixed, 48px cells, fades out at the top and bottom of the viewport), lime-green accents, custom serif heading, matching card components
 - **Responsive** — clamp-based sizing, two-column feed layout on desktop (≥768px)
 
 ## Quick Start
@@ -45,7 +45,7 @@ npm run build      # production build to dist/
 
 ```
 src/
-  App.jsx                      — thin orchestrator
+  App.jsx                      — thin orchestrator (site-wide lime grid + section layout)
   main.jsx                     — entry point
   index.css                    — global styles, keyframes, social-link hover
   hooks/
@@ -53,7 +53,7 @@ src/
   lib/
     supabase.js                — Supabase client (null if env vars missing)
   components/
-    HeroSection.jsx            — hero layout (grid, name, tagline, helmet, hotspots, stats)
+    HeroSection.jsx            — hero layout (name, tagline, helmet, hotspots, stats)
     StatsSection.jsx           — Supabase-backed stats row + 3-tap editor modal
     MusicHotspot.jsx           — music dot + now-playing popup
     GarageSection.jsx          — bike tabs (Lucille / Kawi) with photos + specs
@@ -138,5 +138,4 @@ The Worker source is archived at `workers/update-stats/index.js`.
 - Branch: `master` (live, Cloudflare Pages) and `dev` (preview, Vercel) — see [Deployment](#deployment)
 - Testing Google sign-in locally requires `VITE_GOOGLE_CLIENT_ID` in `.env` and `http://localhost:3000` in the Google client's authorized JS origins
 - The Google one-tap prompt requires a `https` origin (or `http://localhost`); it won't appear over plain `http` on a LAN IP
-- `.vscode/tasks.json` — auto-opens an `opencode` WSL terminal on folder open
 - All images pre-optimized as WebP with PNG fallbacks

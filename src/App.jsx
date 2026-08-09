@@ -14,7 +14,23 @@ export default function App() {
   }
 
   return (
-    <div style={{ background: '#080808', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+    <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+      <div
+        aria-hidden
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: -1,
+          pointerEvents: 'none',
+          backgroundImage: `
+            linear-gradient(rgba(200,220,20,0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(200,220,20,0.05) 1px, transparent 1px)
+          `,
+          backgroundSize: '48px 48px',
+          maskImage: 'linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%)',
+        }}
+      />
       <HeroSection
         nowPlaying={nowPlaying}
         recentTracks={recentTracks}
