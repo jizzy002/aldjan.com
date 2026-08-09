@@ -12,8 +12,8 @@ Minimalist motorcycle-rider landing page. Built with **React 19** + **Vite 8**.
 - **Social links** — Facebook, Snapchat, Telegram, LinkedIn, YouTube, TikTok via Font Awesome
 - **Instagram feed** — SnapWidget embed with latest posts
 - **Global editable stats** — Supabase-backed stats row (Followers, Kilometers, Countries). Tap 3× within 3 seconds to open an in-app editor (password-gated, validated server-side via Cloudflare Worker)
-- **Guestbook** — visitors sign in with **GitHub** or **Google** and leave up to 3 notes with reactions. Identities and limits are enforced server-side (Supabase RLS + trigger). Google sign-in uses a **popup** (Google Identity Services) so the URL bar never shows `supabase.co`
-- **Minimalist dark theme** — grid background, lime-green accents, custom serif heading, matching card components
+- **Guestbook** — visitors sign in with **GitHub** or **Google** and leave up to 3 notes with reactions. Identities and limits are enforced server-side (Supabase RLS + trigger). Google sign-in uses the **Google Identity Services** one-tap popup, so the URL bar never shows `supabase.co`
+- **Minimalist dark theme** — plain black background with a site-wide lime grid (fixed, 48px cells, fades out at the top and bottom of the viewport), lime-green accents, custom serif heading, matching card components
 - **Responsive** — clamp-based sizing, two-column feed layout on desktop (≥768px)
 
 ## Quick Start
@@ -45,7 +45,7 @@ npm run build      # production build to dist/
 
 ```
 src/
-  App.jsx                      — thin orchestrator
+  App.jsx                      — thin orchestrator (site-wide lime grid + section layout)
   main.jsx                     — entry point
   index.css                    — global styles, keyframes, social-link hover
   hooks/
@@ -53,7 +53,7 @@ src/
   lib/
     supabase.js                — Supabase client (null if env vars missing)
   components/
-    HeroSection.jsx            — hero layout (grid, name, tagline, helmet, hotspots, stats)
+    HeroSection.jsx            — hero layout (name, tagline, helmet, hotspots, stats)
     StatsSection.jsx           — Supabase-backed stats row + 3-tap editor modal
     MusicHotspot.jsx           — music dot + now-playing popup
     GarageSection.jsx          — bike tabs (Lucille / Kawi) with photos + specs
@@ -78,7 +78,7 @@ workers/
 - Font Awesome 6.7.2 (CDN)
 - Google Fonts: DM Sans + Playfair Display
 - Supabase (database + RLS + Auth for stats and guestbook)
-- Google Identity Services (GIS popup for Google sign-in)
+- Google Identity Services (one-tap popup for Google sign-in)
 - Cloudflare Worker (password validation, secure stats writes)
 - Hosted on Cloudflare Pages (live) + Vercel (preview)
 
@@ -110,7 +110,7 @@ Set these in **both** Cloudflare Pages and Vercel (Dashboard → project → Set
    - `https://aldjan.com`
    - `https://dev.aldjan.com`
    - `http://localhost:3000`
-3. Run `supabase/guestbook.sql` in the Supabase SQL editor (tables, RLS, limits trigger).
+3. Run `supabase/guestbook.sql` in the Supabase SQL editor (tables, RLS, limits trigger) — includes `drop policy if exists` guards, safe to re-run.
 
 ### Cloudflare Worker
 
@@ -131,11 +131,11 @@ The Worker source is archived at `workers/update-stats/index.js`.
 - `PASSWORD` and `SUPABASE_SERVICE_KEY` are set in Cloudflare only, **never** in the client bundle or the repo
 - The `stats` table allows reads only (`supabase/stats-rls.sql`); all writes require the service role, so the Cloudflare Worker password is the only gate for writing stats
 - The guestbook table uses RLS plus a `security definer` trigger that derives `user_id`, names, avatars, and emails from `auth.users`/JWT — the client can't spoof them — and hard-caps 3 notes per account
-- Google sign-in runs as a browser popup (no server redirect); the ID token is exchanged via `supabase.auth.signInWithIdToken` over HTTPS with signature/aud/exp validation
+- Google sign-in uses the Google Identity Services one-tap flow (no server redirect); a fresh SHA-256 **nonce** is generated per sign-in, sent hashed to Google and raw to Supabase, and the ID token is exchanged via `supabase.auth.signInWithIdToken` over HTTPS with signature/aud/exp validation
 
 ## Dev notes
 
-- Branch: `dev` for active development
+- Branch: `master` (live, Cloudflare Pages) and `dev` (preview, Vercel) — see [Deployment](#deployment)
 - Testing Google sign-in locally requires `VITE_GOOGLE_CLIENT_ID` in `.env` and `http://localhost:3000` in the Google client's authorized JS origins
-- `.vscode/tasks.json` — auto-opens an `opencode` WSL terminal on folder open
+- The Google one-tap prompt requires a `https` origin (or `http://localhost`); it won't appear over plain `http` on a LAN IP
 - All images pre-optimized as WebP with PNG fallbacks
