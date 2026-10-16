@@ -296,6 +296,106 @@ button, a {
   animation: drawLine 0.25s var(--ease-out) both;
 }
 
+/* ── Helmet (drag to spin) ── */
+
+.helmet-box:focus {
+  outline: none;
+}
+
+.helmet-box:focus-visible {
+  outline: 1px solid var(--border-strong);
+  outline-offset: 6px;
+  border-radius: 50%;
+}
+
+/* ── Light ray + wall switch ── */
+
+.light-ray {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.light-ray.is-on {
+  opacity: 1;
+  animation: lightFlicker 0.45s steps(1) both;
+}
+
+@keyframes lightFlicker {
+  0%   { opacity: 0; }
+  12%  { opacity: 0.7; }
+  22%  { opacity: 0.1; }
+  34%  { opacity: 0.9; }
+  46%  { opacity: 0.35; }
+  60%  { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+.lever {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: block;
+  line-height: 0;
+  overflow: visible;
+}
+
+.lever svg {
+  overflow: visible;
+}
+
+.lever:focus-visible {
+  outline: 1px solid var(--border-strong);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.lever-base {
+  fill: #141414;
+  stroke: rgba(var(--text-rgb), 0.16);
+  stroke-width: 1;
+}
+
+.lever-pivot {
+  fill: #2c2c2c;
+  stroke: rgba(var(--text-rgb), 0.22);
+  stroke-width: 0.8;
+}
+
+.lever-rod {
+  stroke: rgba(var(--text-rgb), 0.45);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+.lever-knob {
+  fill: #2a2a2a;
+  stroke: rgba(var(--text-rgb), 0.3);
+  stroke-width: 1;
+  transition: fill 0.2s ease, filter 0.2s ease;
+}
+
+.lever-arm {
+  transform-box: view-box;
+  transform-origin: 8px 24px;
+  transform: rotate(38deg);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.lever.is-on .lever-arm {
+  transform: rotate(-38deg);
+}
+
+.lever.is-on .lever-knob {
+  fill: #fff3e0;
+  stroke: rgba(255, 243, 224, 0.6);
+  filter: drop-shadow(0 0 4px rgba(255, 236, 205, 0.8));
+}
+
+@media (hover: hover) {
+  .lever:hover .lever-rod { stroke: rgba(var(--text-rgb), 0.65); }
+}
+
 /* ── Social links ── */
 
 .social-link {
@@ -360,6 +460,7 @@ button, a {
     transform: none;
     transition: none;
   }
-  .pop-in, .pop-in-up, .draw-line, .hotspot-connector, .hotspot-tooltip { animation: none; }
+  .pop-in, .pop-in-up, .draw-line, .hotspot-connector, .hotspot-tooltip, .light-ray.is-on { animation: none; }
+  .lever-arm { transition: none; }
   .hotspot-pulse { animation: none; opacity: 0; }
 }

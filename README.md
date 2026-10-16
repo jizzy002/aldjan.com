@@ -6,9 +6,10 @@ Minimalist motorcycle-rider landing page. Built with **React 19** + **Vite 8**.
 
 ## Features
 
-- **360° helmet on scroll** — the hero pins while scrolling turns the LS2 Strobe II through 48 real turntable photos (canvas, progressively preloaded, 640px set on mobile). Falls back to the static illustration with `prefers-reduced-motion` or if frames fail to load
-- **Helmet hotspots** — interactive dots on the helmet (Instagram link, Gear info); they hide while the helmet turns
-- **Last.fm now-playing** — polls every 25s (and on tab return). The music dot rides on the helmet's intercom unit and only appears mid-turn when it faces the viewer; the popup re-positions itself to stay on screen
+- **360° helmet** — drag/swipe (with momentum) or use the arrow keys to turn the LS2 Strobe II through 48 real turntable photos (canvas, progressively preloaded, 640px set on mobile). No scroll-jacking: vertical swipes still scroll the page. A short wiggle on load hints that it turns (skipped with `prefers-reduced-motion`). Falls back to the static illustration if frames fail to load
+- **Helmet hotspots** — interactive dots on the helmet (Instagram link, Gear info); they show when the helmet faces front
+- **Window light** — a decorative light ray from the left page edge (behind the helmet, never relights the photos) with a lever switch on the edge (click, flick or arrow keys; remembered per visitor). Toggle both in code via `LIGHT_RAY` / `LIGHT_SWITCH` in `HeroSection.jsx`
+- **Last.fm now-playing** — polls every 25s (and on tab return). The music dot rides on the helmet's intercom unit and only appears when you turn the intercom into view; the popup re-positions itself to stay on screen
 - **Garage tabs** — bike showcase in the feed section (Lucille: Suzuki GSX750F, Kawi: Kawasaki EN500), side by side with Instagram on desktop
 - **Social links** — Facebook, Snapchat, Telegram, LinkedIn, YouTube, TikTok via Font Awesome
 - **Instagram feed** — SnapWidget embed with latest posts
@@ -52,15 +53,17 @@ src/
   index.css                    — design tokens, shared classes (card, eyebrow, hotspots), keyframes
   hooks/
     useNowPlaying.js           — Last.fm polling + hint state machine
-    useScrollProgress.js       — 0→1 scroll progress through the pinned hero
+    useHelmetDrag.js           — drag/swipe/keyboard rotation with momentum and frame snapping
     useReveal.js               — adds .is-visible when an element scrolls into view
   lib/
     supabase.js                — Supabase client (null if env vars missing)
     oiia.js                    — 🐈
   components/
     HeroSection.jsx            — hero layout (name, tagline, helmet, hotspots + intercom track, stats)
-    HelmetSequence.jsx         — scroll-driven frame sequence on a canvas (HELMET_FRAMES)
+    HelmetSequence.jsx         — frame sequence on a canvas (HELMET_FRAMES)
     HotspotDot.jsx             — shared dot + pulse + tooltip
+    LightRay.jsx               — decorative window light ray
+    LightSwitch.jsx            — lever on the page edge that toggles the light
     StatsSection.jsx           — Supabase-backed stats row + 3-tap editor modal
     MusicHotspot.jsx           — music dot + now-playing popup (viewport-aware placement)
     GarageSection.jsx          — bike tabs (Lucille / Kawi) with photos + specs

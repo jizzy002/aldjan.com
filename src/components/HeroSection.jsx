@@ -3,7 +3,10 @@ import HelmetSequence, { HELMET_FRAMES } from './HelmetSequence'
 import HotspotDot from './HotspotDot'
 import MusicHotspot from './MusicHotspot'
 import StatsSection from './StatsSection'
+import LightRay from './LightRay'
+import LightSwitch from './LightSwitch'
 import { OIIA_ENABLED, playOiia, SPIN_SETTLE_SPEED } from '../lib/oiia'
+import useHelmetDrag from '../hooks/useHelmetDrag'
 
 const TEXT_RGB = [240, 235, 224]
 const ACCENT_RGB = [200, 220, 20]
@@ -86,9 +89,9 @@ function LetterDrift({ text }) {
 }
 
 const HOTSPOTS = [
-  { id: 0, label: 'Instagram', color: 'var(--insta)', icon: 'fa-brands fa-instagram', href: 'https://instagram.com/aldjan.pov', x: 42, y: 62 },
+  { id: 0, label: 'Instagram', color: 'var(--insta)', icon: 'fa-brands fa-instagram', href: 'https://instagram.com/aldjan.pov', x: 30, y: 60.5 },
   {
-    id: 1, label: 'Gear', x: 77, y: 62,
+    id: 1, label: 'Gear', x: 77.5, y: 63,
     content: {
       title: 'What gear do I use?',
       items: [
@@ -103,11 +106,15 @@ const HOTSPOTS = [
 const MUSIC_ID = 3
 // Photo frames have empty margin around the helmet; draw them this much larger than the box
 const HELMET_ZOOM = 1.25
+// Decorative window light from the left page edge (just a prop, doesn't relight the photos)
+const LIGHT_RAY = false
+// Lever on the page edge that turns the ray on/off; false hides it and keeps the ray on
+const LIGHT_SWITCH = false
 // The music dot rides on the intercom unit, which only faces the viewer mid-turn: [frame, x%, y%]
 const MUSIC_TRACK = [
   // 18, 22 and 26 are hand-placed; the rest follow a smooth curve through them
-  [17, 68.3, 68.8], [18, 62, 69], [19, 56.3, 69.1], [20, 51, 69.1], [21, 46.3, 69.1],
-  [22, 42, 69], [23, 38.3, 68.8], [24, 35, 68.6], [25, 32.3, 68.3],
+  [17, 66.5, 69.5], [18, 62, 69.5], [19, 57.5, 69.5], [20, 52.5, 69.5], [21, 47, 69.2],
+  [22, 42, 69], [23, 38, 69], [24, 34.3, 69], [25, 30.5, 68.5],
 ]
 // Static illustration (no rotation): dot on the ear area
 const MUSIC_STATIC = { x: 23, y: 20 }
@@ -121,9 +128,6 @@ function trackPosition(track, frame) {
   const t = Math.min(1, Math.max(0, (frame - f0) / (f1 - f0)))
   return { x: x0 + (x1 - x0) * t, y: y0 + (y1 - y0) * t }
 }
-
-// Rotation progress past which hotspots hide
-const ROTATE_THRESHOLD = 0.04
 
 function PopupItems({ items }) {
   return items.map(([label, value]) => (
@@ -150,25 +154,45 @@ function CornerAccent({ position }) {
 
 export default function HeroSection({
   nowPlaying, recentTracks, musicHintState, setMusicHintState, onScrollToFeed,
-  pinned, progress = 0, onSequenceFail,
+  sequenceEnabled, reducedMotion, onSequenceFail,
 }) {
   const [active, setActive] = useState(null)
   const [hoveredSpot, setHoveredSpot] = useState(null)
   const [hintVisible, setHintVisible] = useState(true)
   const supportsHover = useState(() => window.matchMedia('(hover: hover)').matches)[0]
-  const rotating = pinned && progress > ROTATE_THRESHOLD
   const [spinTurns, setSpinTurns] = useState(0)
   const [spinning, setSpinning] = useState(false)
   const spinFrame = useRef(0)
-  const hideSpots = rotating || spinning
-  // Same frame the canvas is showing, so the dot stays glued to the intercom
-  const frame = Math.round(progress * HELMET_FRAMES) % HELMET_FRAMES
-  const musicTrackPos = !pinned ? MUSIC_STATIC : spinning ? null : trackPosition(MUSIC_TRACK, frame)
+  const [seqReady, setSeqReady] = useState(false)
+  // window light on/off (remembered per visitor)
+  const [lightOn, setLightOn] = useState(() => {
+    try { return localStorage.getItem('helmet-light') !== 'off' } catch { return true }
+  })
+  function toggleLight() {
+    setLightOn(on => {
+      try { localStorage.setItem('helmet-light', on ? 'off' : 'on') } catch { /* storage blocked */ }
+      return !on
+    })
+  }
+  const drag = useHelmetDrag({
+    frames: HELMET_FRAMES,
+    reducedMotion,
+    onDragStart: () => setHintVisible(false),
+  })
+  const rotation = drag.turns + spinTurns
+  // Same frame the canvas is showing, so the dots stay glued to the helmet
+  const frame = ((Math.round(rotation * HELMET_FRAMES) % HELMET_FRAMES) + HELMET_FRAMES) % HELMET_FRAMES
+  // HOTSPOTS are measured on frame 0 only, so they show on exactly that frame
+  const nearFront = frame === 0
+  // front dots (Instagram, Gear) only when the helmet faces the viewer and isn't moving
+  const hideSpots = spinning || (sequenceEnabled && (!nearFront || drag.dragging))
+  const musicTrackPos = !sequenceEnabled ? MUSIC_STATIC : spinning ? null : trackPosition(MUSIC_TRACK, frame)
+  const degrees = Math.round((((rotation % 1) + 1) % 1) * 360) % 360
   // Hotspot coords are % of the unzoomed frame; map them onto the zoomed helmet
-  const zoom = pinned ? HELMET_ZOOM : 1
+  const zoom = sequenceEnabled ? HELMET_ZOOM : 1
   const zoomPct = v => 50 + (v - 50) * zoom
   const musicPos = musicTrackPos && { x: zoomPct(musicTrackPos.x), y: zoomPct(musicTrackPos.y) }
-  const listeningHint = pinned && nowPlaying?.isPlaying && (musicHintState === 'showing' || musicHintState === 'hiding')
+  const listeningHint = sequenceEnabled && nowPlaying?.isPlaying && (musicHintState === 'showing' || musicHintState === 'hiding')
 
   const musicVisible = !!musicPos
   useEffect(() => {
@@ -215,7 +239,7 @@ export default function HeroSection({
   const helmetRef = useRef(null)
   const startSpinRef = useRef(startSpin)
   startSpinRef.current = startSpin
-  const eggEnabled = OIIA_ENABLED && pinned
+  const eggEnabled = OIIA_ENABLED && sequenceEnabled
   const tapTimes = useRef([])
 
   function helmetOnScreen() {
@@ -256,9 +280,18 @@ export default function HeroSection({
     return () => clearTimeout(timer)
   }, [hintVisible])
 
+  // hidden front dots take their popups with them
   useEffect(() => {
-    if (rotating) setActive(null)
-  }, [rotating])
+    if (hideSpots) setActive(a => (a === MUSIC_ID ? a : null))
+  }, [hideSpots])
+
+  // once the coarse frames are in, swing the helmet a little to show it can be turned
+  const wiggle = drag.wiggle
+  useEffect(() => {
+    if (!seqReady) return
+    const t = setTimeout(wiggle, 900)
+    return () => clearTimeout(t)
+  }, [seqReady, wiggle])
 
   useEffect(() => {
     function handleClick(e) {
@@ -270,8 +303,6 @@ export default function HeroSection({
     return () => document.removeEventListener('click', handleClick)
   }, [])
 
-  const textFade = pinned ? 1 - Math.min(1, progress * 1.6) * 0.45 : 1
-
   return (
     <section
       style={{
@@ -279,8 +310,7 @@ export default function HeroSection({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        position: pinned ? 'sticky' : 'relative',
-        top: 0,
+        position: 'relative',
         overflow: 'hidden',
         padding: 'var(--hero-inset-top) var(--hero-inset-x) var(--hero-inset-bottom)',
       }}
@@ -299,7 +329,7 @@ export default function HeroSection({
       {/* Content */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: '100%', position: 'relative', zIndex: 1 }}>
 
-        <div style={{ opacity: textFade, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           {/* Name */}
           <div className="enter" style={{ '--delay': '0.1s', marginBottom: 'clamp(12px, 1.8vh, 20px)' }}>
             <LetterDrift text="Aldin Jandrić" />
@@ -316,18 +346,42 @@ export default function HeroSection({
         </div>
 
         {/* Helmet container */}
-        <div className="enter" style={{ '--delay': '0.45s', position: 'relative', zIndex: 2 }}>
-          <div ref={helmetRef} onClick={handleHelmetTap} style={{
-            position: 'relative',
-            width: 'min(480px, 82vw, 45svh)',
-            aspectRatio: '1 / 1',
-            userSelect: 'none',
-            touchAction: 'manipulation', // no double-tap zoom when tapping the helmet quickly
-            transform: pinned
-              ? `scale(${1 - progress * 0.08}) translateY(${spinning ? -Math.abs(Math.sin(spinTurns * Math.PI * 2)) * 8 : 0}px)`
-              : undefined,
-          }}>
-            <HelmetSequence progress={progress + spinTurns} enabled={pinned} onFail={onSequenceFail} zoom={zoom} />
+        <div className="enter" style={{ '--delay': '0.45s', position: 'relative', zIndex: 2, '--hb': 'min(480px, 82vw, 45svh)' }}>
+          {LIGHT_RAY && <LightRay on={!LIGHT_SWITCH || lightOn} />}
+          {LIGHT_RAY && LIGHT_SWITCH && <LightSwitch on={lightOn} onToggle={toggleLight} />}
+          <div
+            ref={helmetRef}
+            className="helmet-box"
+            onClick={handleHelmetTap}
+            {...(sequenceEnabled ? drag.handlers : {})}
+            {...(sequenceEnabled ? {
+              tabIndex: 0,
+              role: 'slider',
+              'aria-label': 'Helmet, drag or use the arrow keys to rotate',
+              'aria-valuemin': 0,
+              'aria-valuemax': 359,
+              'aria-valuenow': degrees,
+              'aria-valuetext': `${degrees} degrees`,
+            } : {})}
+            style={{
+              position: 'relative',
+              width: 'var(--hb)',
+              zIndex: 1,
+              aspectRatio: '1 / 1',
+              userSelect: 'none',
+              // vertical swipes still scroll the page; horizontal ones spin the helmet
+              touchAction: sequenceEnabled ? 'pan-y' : 'manipulation',
+              cursor: sequenceEnabled ? (drag.dragging ? 'grabbing' : 'grab') : undefined,
+              transform: spinning ? `translateY(${-Math.abs(Math.sin(spinTurns * Math.PI * 2)) * 8}px)` : undefined,
+            }}
+          >
+            <HelmetSequence
+              progress={rotation}
+              enabled={sequenceEnabled}
+              onFail={onSequenceFail}
+              onReady={() => setSeqReady(true)}
+              zoom={zoom}
+            />
 
             {/* Vignette */}
             <div aria-hidden style={{
@@ -437,7 +491,7 @@ export default function HeroSection({
                 onMouseLeave={() => setHoveredSpot(null)}
                 supportsHover={supportsHover}
                 labelLeft={musicPos.x > 50}
-                showHint={!pinned}
+                showHint={!sequenceEnabled}
                 style={{
                   position: 'absolute',
                   left: `${musicPos.x}%`,
@@ -464,10 +518,12 @@ export default function HeroSection({
           transition: 'opacity 1.5s ease',
           pointerEvents: 'none',
         }}>
-          {listeningHint ? '♫ he is listening to something, scroll to find it ♫' : 'tap the dots'}
+          {listeningHint
+            ? '♫ he is listening to something, spin the helmet to find it ♫'
+            : sequenceEnabled ? 'tap the dots · drag to spin' : 'tap the dots'}
         </div>
 
-        <div style={{ opacity: textFade }}>
+        <div>
           <div className="enter" style={{ '--delay': '0.65s' }}>
             <StatsSection />
           </div>

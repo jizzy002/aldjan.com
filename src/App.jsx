@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import useNowPlaying from './hooks/useNowPlaying'
-import useScrollProgress from './hooks/useScrollProgress'
 import HeroSection from './components/HeroSection'
 import { HELMET_SEQUENCE_ENABLED } from './components/HelmetSequence'
 import FeedSection from './components/FeedSection'
@@ -13,10 +12,8 @@ const canHover = window.matchMedia('(hover: hover)').matches
 export default function App() {
   const { nowPlaying, recentTracks, musicHintState, setMusicHintState } = useNowPlaying()
   const feedRef = useRef(null)
-  const pinRef = useRef(null)
   const [sequenceFailed, setSequenceFailed] = useState(false)
-  const pinned = HELMET_SEQUENCE_ENABLED && !reducedMotion && !sequenceFailed
-  const progress = useScrollProgress(pinRef, pinned)
+  const sequenceEnabled = HELMET_SEQUENCE_ENABLED && !sequenceFailed
   const onSequenceFail = useCallback(() => setSequenceFailed(true), [])
 
   const scrollToFeed = () => {
@@ -49,18 +46,16 @@ export default function App() {
     <div>
       <div aria-hidden className="bg-grid" />
       <div aria-hidden className="bg-spotlight" />
-      <div ref={pinRef} style={{ height: pinned ? '220svh' : undefined, position: 'relative' }}>
-        <HeroSection
-          nowPlaying={nowPlaying}
-          recentTracks={recentTracks}
-          musicHintState={musicHintState}
-          setMusicHintState={setMusicHintState}
-          onScrollToFeed={scrollToFeed}
-          pinned={pinned}
-          progress={progress}
-          onSequenceFail={onSequenceFail}
-        />
-      </div>
+      <HeroSection
+        nowPlaying={nowPlaying}
+        recentTracks={recentTracks}
+        musicHintState={musicHintState}
+        setMusicHintState={setMusicHintState}
+        onScrollToFeed={scrollToFeed}
+        sequenceEnabled={sequenceEnabled}
+        reducedMotion={reducedMotion}
+        onSequenceFail={onSequenceFail}
+      />
       <FeedSection ref={feedRef} />
       <GuestbookSection />
       <Footer />

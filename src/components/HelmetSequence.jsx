@@ -31,11 +31,13 @@ const imgStyle = {
   filter: 'drop-shadow(0 12px 60px rgba(0,0,0,0.9)) drop-shadow(0 0 30px rgba(var(--accent),0.15))',
 }
 
-export default function HelmetSequence({ progress = 0, enabled, onFail, zoom = 1 }) {
+export default function HelmetSequence({ progress = 0, enabled, onFail, onReady, zoom = 1 }) {
   const canvasRef = useRef(null)
   const frames = useRef([])
   const [loaded, setLoaded] = useState(0)
   const [firstReady, setFirstReady] = useState(false)
+  const onReadyRef = useRef(onReady)
+  onReadyRef.current = onReady
 
   // Preload frames progressively after first paint
   useEffect(() => {
@@ -45,6 +47,8 @@ export default function HelmetSequence({ progress = 0, enabled, onFail, zoom = 1
     const idle = window.requestIdleCallback || (cb => setTimeout(cb, 200))
 
     async function loadAll() {
+      const coarse = Math.ceil(HELMET_FRAMES / 4)
+      let count = 0
       for (const i of order) {
         if (cancelled) return
         const img = new Image()
@@ -59,6 +63,7 @@ export default function HelmetSequence({ progress = 0, enabled, onFail, zoom = 1
         frames.current[i] = img
         if (i === 0) setFirstReady(true)
         setLoaded(c => c + 1)
+        if (++count === coarse) onReadyRef.current?.()
       }
     }
 
