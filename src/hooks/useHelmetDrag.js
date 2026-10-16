@@ -5,6 +5,7 @@ const PX_PER_TURN = 1.1 // one full turn per ~1.1 widths of the helmet box
 const DIRECTION = -1 // 1 or -1: which way a rightward drag turns the helmet
 const FRICTION = 4.5 // momentum decay per second
 const MIN_SPEED = 0.05 // turns/s where momentum stops
+const WIGGLE = 1 / 16 // hint swing on load (turns); peaks at ~3/4 of this
 const FRONT_MAGNET = 2.5 // frames: releasing this close to the front snaps to it
 
 // Drag / swipe / arrow-key rotation for the helmet. `turns` is unbounded (1 = 360°).
@@ -87,7 +88,7 @@ export default function useHelmetDrag({ frames, reducedMotion, onDragStart }) {
     const tick = now => {
       if (interacted.current) return (anim.current = 0)
       const t = Math.min(1, (now - start) / D)
-      setTurns(from + (1 / 12) * Math.sin(t * Math.PI * 2) * Math.sin(t * Math.PI))
+      setTurns(from + WIGGLE * Math.sin(t * Math.PI * 2) * Math.sin(t * Math.PI))
       if (t < 1) anim.current = requestAnimationFrame(tick)
       else {
         anim.current = 0

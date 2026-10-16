@@ -15,11 +15,15 @@ function frameUrl(i, small) {
   return `/helmet/${small ? 'sm/' : ''}helmet-${String(i).padStart(3, '0')}.webp`
 }
 
-// Load order: first frame, then every 4th (coarse scrub works early), then the rest
+// Frames on each side of the front that load first (covers the hint wiggle smoothly)
+const NEAR_FRONT = 4
+
+// Load order: front frame, its neighbours, then every 4th (coarse scrub works early), then the rest
 function loadOrder(n) {
   const order = [0]
-  for (let i = 4; i < n; i += 4) order.push(i)
-  for (let i = 1; i < n; i++) if (i % 4) order.push(i)
+  for (let d = 1; d <= NEAR_FRONT; d++) order.push(d, (n - d) % n)
+  for (let i = 4; i < n; i += 4) if (!order.includes(i)) order.push(i)
+  for (let i = 1; i < n; i++) if (!order.includes(i)) order.push(i)
   return order
 }
 
@@ -47,7 +51,7 @@ export default function HelmetSequence({ progress = 0, enabled, onFail, onReady,
     const idle = window.requestIdleCallback || (cb => setTimeout(cb, 200))
 
     async function loadAll() {
-      const coarse = Math.ceil(HELMET_FRAMES / 4)
+      const nearFront = 1 + 2 * NEAR_FRONT // ready once the front and its neighbours are in
       let count = 0
       for (const i of order) {
         if (cancelled) return
@@ -63,7 +67,7 @@ export default function HelmetSequence({ progress = 0, enabled, onFail, onReady,
         frames.current[i] = img
         if (i === 0) setFirstReady(true)
         setLoaded(c => c + 1)
-        if (++count === coarse) onReadyRef.current?.()
+        if (++count === nearFront) onReadyRef.current?.()
       }
     }
 

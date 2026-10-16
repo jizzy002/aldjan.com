@@ -1,6 +1,5 @@
 import useReveal from '../hooks/useReveal'
 
-// ── PLACEHOLDER CONTENT: replace with the real text ──
 const ABOUT = {
   headline: 'Riding, tinkering, exploring and much more.',
   body: [
