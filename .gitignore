@@ -13,5 +13,5 @@ docs/superpowers/
 # AI/agent tooling (kept locally only)
 AGENTS.md
 .vscode/tasks.json
-# raw helmet turntable footage (frames are exported to public/helmet/)
+# local helmet source material: turntable videos + edited PNG masters (frames-edited/PNG)
 /helmet/

@@ -148,4 +148,5 @@ The Worker source is archived at `workers/update-stats/index.js`.
 - Testing Google sign-in locally requires `VITE_GOOGLE_CLIENT_ID` in `.env` and `http://localhost:3000` in the Google client's authorized JS origins
 - The Google one-tap prompt requires a `https` origin (or `http://localhost`); it won't appear over plain `http` on a LAN IP
 - All images pre-optimized as WebP with PNG fallbacks
-- Helmet frames were cut from a turntable video (raw footage in `/helmet/`, git-ignored). Frame 0 must stay the 3/4 front-right view; if the frames change, update `HELMET_FRAMES` in `HelmetSequence.jsx` and the hotspot coordinates (`HOTSPOTS`, `MUSIC_TRACK`, in % of the unzoomed frame) in `HeroSection.jsx`
+- Helmet frames come from a blue-backdrop turntable video; the 960px RGBA PNG masters (visor hand-edited for transparency) live in `/helmet/frames-edited/PNG/` (git-ignored). After editing a master, regenerate **both** `public/helmet/helmet-NNN.webp` (960px) and `public/helmet/sm/helmet-NNN.webp` (640px) — phones load `sm/`
+- Frame 0 must stay the 3/4 front-right view; if the frames change, update `HELMET_FRAMES` in `HelmetSequence.jsx` and the hotspot coordinates (`HOTSPOTS`, `MUSIC_TRACK`, in % of the unzoomed frame) in `HeroSection.jsx`
