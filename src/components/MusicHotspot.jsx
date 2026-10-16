@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
+import HotspotDot from './HotspotDot'
 
 export default function MusicHotspot({
   nowPlaying,
@@ -11,84 +12,64 @@ export default function MusicHotspot({
   onMouseEnter,
   onMouseLeave,
   supportsHover,
+  labelLeft,
+  showHint = true,
   style,
 }) {
   const [showRecent, setShowRecent] = useState(false)
-  return (
-    <div data-hotspot style={style}>
-      {/* Pulse ring */}
-      {!isActive && nowPlaying?.isPlaying && (
-        <span aria-hidden style={{
-          position: 'absolute',
-          top: -14, left: -14,
-          width: 28, height: 28,
-          borderRadius: '50%',
-          border: '1px solid rgba(26,217,128,0.6)',
-          animation: 'musicPulse 1.2s ease-out infinite',
-          pointerEvents: 'none',
-        }} />
-      )}
+  const playing = !!nowPlaying?.isPlaying
+  const wrapRef = useRef(null)
+  const cardRef = useRef(null)
+  // 'side' = next to the dot; otherwise { left } = above the dot, clamped inside the viewport
+  const [placement, setPlacement] = useState('side')
 
-      {/* Dot */}
-      <button
+  useLayoutEffect(() => {
+    if (!isActive) return
+    const MARGIN = 12
+    function fit() {
+      const dot = wrapRef.current?.getBoundingClientRect()
+      const w = cardRef.current?.offsetWidth
+      if (!dot || !w) return
+      const vw = document.documentElement.clientWidth
+      const sideFits = labelLeft ? dot.left - 18 - w >= MARGIN : dot.left + 18 + w <= vw - MARGIN
+      if (sideFits) {
+        setPlacement('side')
+      } else {
+        const left = Math.min(Math.max(dot.left - w / 2, MARGIN), vw - MARGIN - w)
+        setPlacement({ left: left - dot.left })
+      }
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [isActive, labelLeft, style?.left, style?.top, showRecent, nowPlaying?.track])
+
+  const above = placement !== 'side'
+
+  return (
+    <div data-hotspot ref={wrapRef} style={style}>
+      <HotspotDot
+        label={playing ? `Now playing: ${nowPlaying.track}` : 'Last.fm'}
+        tooltip={playing ? 'Now Playing' : 'Last.fm'}
+        color="var(--music)"
+        isActive={isActive}
+        isMuted={!isActive && !playing}
+        pulse={playing}
+        showTooltip={supportsHover && isHovered}
         onClick={() => { onToggle(); setMusicHintState('done') }}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
-        aria-label={nowPlaying?.isPlaying ? `Now playing: ${nowPlaying.track}` : 'Last.fm'}
-        style={{
-          position: 'absolute',
-          top: -22, left: -22,
-          width: 44, height: 44,
-          borderRadius: '50%',
-          background: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-          padding: 0,
-          outline: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <span style={{
-          width: 11, height: 11,
-          borderRadius: '50%',
-          background: isActive || nowPlaying?.isPlaying ? '#1adb80' : 'rgba(240,235,224,0.3)',
-          border: `2px solid ${isActive || nowPlaying?.isPlaying ? 'rgba(255,255,255,0.6)' : 'rgba(240,235,224,0.15)'}`,
-          boxShadow: isActive || nowPlaying?.isPlaying ? '0 0 18px rgba(26,217,128,1)' : 'none',
-          transition: 'all 0.18s ease',
-        }} />
-
-        {/* Hover tooltip */}
-        {supportsHover && !isActive && isHovered && (
-          <span style={{
-            position: 'absolute',
-            top: -12, left: '50%',
-            transform: 'translateX(-50%)',
-            fontSize: 10,
-            letterSpacing: '0.06em',
-            color: 'rgba(240,235,224,0.7)',
-            background: 'rgba(8,8,8,0.92)',
-            padding: '3px 9px',
-            borderRadius: 3,
-            whiteSpace: 'nowrap',
-            pointerEvents: 'none',
-            border: '1px solid rgba(26,219,128,0.25)',
-          }}>
-            {nowPlaying?.isPlaying ? 'Now Playing' : 'Last.fm'}
-          </span>
-        )}
-      </button>
+      />
 
       {/* Initial 'now playing' hint */}
-      {(musicHintState === 'showing' || musicHintState === 'hiding') && nowPlaying?.isPlaying && (
+      {showHint && (musicHintState === 'showing' || musicHintState === 'hiding') && nowPlaying?.isPlaying && (
         <span style={{
           position: 'absolute',
           top: -48, left: '50%',
           transform: 'translateX(-50%)',
           fontSize: 10,
           letterSpacing: '0.06em',
-          color: 'rgba(26,217,128,0.8)',
+          color: 'rgba(var(--music),0.8)',
           background: 'rgba(8, 8, 8, 0.57)',
           whiteSpace: 'nowrap',
           pointerEvents: 'none',
@@ -101,25 +82,29 @@ export default function MusicHotspot({
 
       {/* Now-playing popup */}
       {isActive && (
-        <div style={{
+        <div className={above ? 'pop-in-up' : 'pop-in'} style={{
           position: 'absolute',
-          top: 0,
-          transform: 'translateY(-50%)',
-          left: 14,
-          whiteSpace: 'nowrap',
           zIndex: 2,
+          whiteSpace: 'nowrap',
+          ...(above
+            ? { bottom: 20, left: placement.left, transformOrigin: 'center bottom' }
+            : {
+                top: 0,
+                transform: 'translateY(-50%)',
+                ...(labelLeft ? { right: 18, transformOrigin: 'right center' } : { left: 18, transformOrigin: 'left center' }),
+              }),
         }}>
-          <span aria-hidden style={{
-            position: 'absolute', top: '50%', left: -14, width: 14,
-            height: 1, background: 'rgba(26,219,128,0.5)',
-          }} />
-          <div style={{
-            background: 'rgba(8,8,8,0.97)',
-            border: '1px solid rgba(26,219,128,0.4)',
-            borderRadius: 8,
-            boxShadow: '0 6px 32px rgba(0,0,0,0.8)',
+          {!above && (
+            <span aria-hidden className="hotspot-connector" style={{
+              '--hs': 'var(--music)',
+              ...(labelLeft ? { right: -18, width: 18, transformOrigin: 'right' } : { left: -18, width: 18, transformOrigin: 'left' }),
+            }} />
+          )}
+          <div ref={cardRef} className="card" style={{
+            borderColor: 'rgba(var(--music),0.35)',
             padding: 14,
-            minWidth: 240,
+            minWidth: 'min(240px, calc(100vw - 24px))',
+            maxWidth: 'min(320px, calc(100vw - 24px))',
           }}>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
               {nowPlaying?.image && (
@@ -133,25 +118,26 @@ export default function MusicHotspot({
                   }}
                 />
               )}
-              <div style={nowPlaying?.isPlaying ? { minWidth: 0 } : {}}>
+              <div style={{ minWidth: 0 }}>
                 <div style={{
                   fontSize: 10,
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
                   marginBottom: 4,
-                  color: nowPlaying?.isPlaying ? 'rgba(26,217,128,0.9)' : 'rgba(240,235,224,0.3)',
+                  color: nowPlaying?.isPlaying ? 'rgba(var(--music),0.9)' : 'rgba(var(--text-rgb),0.3)',
                 }}>
                   {nowPlaying?.isPlaying ? '♫ Now Playing' : 'Last Played'}
                 </div>
                 <div style={{
-                  fontSize: 14, color: '#f0ebe0', fontWeight: 500, lineHeight: 1.3,
-                  ...(nowPlaying?.isPlaying ? { overflow: 'hidden', textOverflow: 'ellipsis' } : {}),
+                  fontSize: 14, color: 'var(--text)', fontWeight: 500, lineHeight: 1.3,
+                  overflow: 'hidden', textOverflow: 'ellipsis',
                 }}>
                   {nowPlaying ? nowPlaying.track : 'Nothing played yet'}
                 </div>
                 <div style={{
                   fontSize: 12, marginTop: 2,
-                  color: nowPlaying?.isPlaying ? 'rgba(240,235,224,0.5)' : 'rgba(240,235,224,0.4)',
+                  overflow: 'hidden', textOverflow: 'ellipsis',
+                  color: nowPlaying?.isPlaying ? 'rgba(var(--text-rgb),0.5)' : 'rgba(var(--text-rgb),0.4)',
                 }}>
                   {nowPlaying ? nowPlaying.artist : ''}
                 </div>
@@ -165,17 +151,17 @@ export default function MusicHotspot({
                     onClick={e => { e.stopPropagation(); setShowRecent(true) }}
                     style={{
                       marginTop: 10, textAlign: 'center', cursor: 'pointer',
-                      fontSize: 10, letterSpacing: '0.06em', color: 'rgba(240,235,224,0.35)',
+                      fontSize: 10, letterSpacing: '0.06em', color: 'rgba(var(--text-rgb),0.35)',
                       transition: 'color 0.15s',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.color = 'rgba(240,235,224,0.6)'}
-                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(240,235,224,0.35)'}
+                    onMouseEnter={e => e.currentTarget.style.color = 'rgba(var(--text-rgb),0.6)'}
+                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(var(--text-rgb),0.35)'}
                   >
                     ▸ Show recent ({recentTracks.length})
                   </div>
                 ) : (
                   <>
-                    <div style={{ margin: '10px 0 8px', height: 1, background: 'rgba(26,219,128,0.15)' }} />
+                    <div style={{ margin: '10px 0 8px', height: 1, background: 'rgba(var(--music),0.15)' }} />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 160, overflowY: 'auto' }}>
                       {recentTracks.map((t, i) => (
                         <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -183,8 +169,8 @@ export default function MusicHotspot({
                             <img src={t.image} alt={`${t.track} by ${t.artist}`} style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover', flexShrink: 0, opacity: 0.6 }} />
                           )}
                           <div style={{ minWidth: 0 }}>
-                            <div style={{ fontSize: 12, color: 'rgba(240,235,224,0.6)', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.track}</div>
-                            <div style={{ fontSize: 10, color: 'rgba(240,235,224,0.3)' }}>{t.artist}</div>
+                            <div style={{ fontSize: 12, color: 'rgba(var(--text-rgb),0.6)', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.track}</div>
+                            <div style={{ fontSize: 10, color: 'rgba(var(--text-rgb),0.3)' }}>{t.artist}</div>
                           </div>
                         </div>
                       ))}
@@ -193,11 +179,11 @@ export default function MusicHotspot({
                       onClick={e => { e.stopPropagation(); setShowRecent(false) }}
                       style={{
                         marginTop: 8, textAlign: 'center', cursor: 'pointer',
-                        fontSize: 10, letterSpacing: '0.06em', color: 'rgba(240,235,224,0.35)',
+                        fontSize: 10, letterSpacing: '0.06em', color: 'rgba(var(--text-rgb),0.35)',
                         transition: 'color 0.15s',
                       }}
-                      onMouseEnter={e => e.currentTarget.style.color = 'rgba(240,235,224,0.6)'}
-                      onMouseLeave={e => e.currentTarget.style.color = 'rgba(240,235,224,0.35)'}
+                      onMouseEnter={e => e.currentTarget.style.color = 'rgba(var(--text-rgb),0.6)'}
+                      onMouseLeave={e => e.currentTarget.style.color = 'rgba(var(--text-rgb),0.35)'}
                     >
                       ▾ Hide recent
                     </div>

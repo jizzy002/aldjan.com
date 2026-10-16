@@ -6,14 +6,16 @@ Minimalist motorcycle-rider landing page. Built with **React 19** + **Vite 8**.
 
 ## Features
 
-- **Helmet hotspots** — interactive dots on the LS2 Strobe II helmet (Gear info, Instagram link)
-- **Last.fm now-playing** — polls every 25s, shows currently scrobbling track + recent queue with a pulsing green dot
+- **360° helmet on scroll** — the hero pins while scrolling turns the LS2 Strobe II through 48 real turntable photos (canvas, progressively preloaded, 640px set on mobile). Falls back to the static illustration with `prefers-reduced-motion` or if frames fail to load
+- **Helmet hotspots** — interactive dots on the helmet (Instagram link, Gear info); they hide while the helmet turns
+- **Last.fm now-playing** — polls every 25s (and on tab return). The music dot rides on the helmet's intercom unit and only appears mid-turn when it faces the viewer; the popup re-positions itself to stay on screen
 - **Garage tabs** — bike showcase in the feed section (Lucille: Suzuki GSX750F, Kawi: Kawasaki EN500), side by side with Instagram on desktop
 - **Social links** — Facebook, Snapchat, Telegram, LinkedIn, YouTube, TikTok via Font Awesome
 - **Instagram feed** — SnapWidget embed with latest posts
 - **Global editable stats** — Supabase-backed stats row (Followers, Kilometers, Countries). Tap 3× within 3 seconds to open an in-app editor (password-gated, validated server-side via Cloudflare Worker)
 - **Guestbook** — visitors sign in with **GitHub** or **Google** and leave up to 3 notes with reactions. Identities and limits are enforced server-side (Supabase RLS + trigger). Google sign-in uses the **Google Identity Services** one-tap popup, so the URL bar never shows `supabase.co`
-- **Minimalist dark theme** — plain black background with a site-wide lime grid (fixed, 48px cells, fades out at the top and bottom of the viewport), lime-green accents, custom serif heading, matching card components
+- **Minimalist dark theme** — black background with a slowly drifting lime grid and a cursor spotlight, lime accents, Playfair Display + DM Sans, shared design tokens (CSS variables) and card styles
+- **Motion** — staggered hero entrance, scroll-reveal cards, popup animations; all disabled under `prefers-reduced-motion`
 - **Responsive** — clamp-based sizing, two-column feed layout on desktop (≥768px)
 
 ## Quick Start
@@ -45,23 +47,30 @@ npm run build      # production build to dist/
 
 ```
 src/
-  App.jsx                      — thin orchestrator (site-wide lime grid + section layout)
+  App.jsx                      — orchestrator (background grid/spotlight, pinned hero, sections)
   main.jsx                     — entry point
-  index.css                    — global styles, keyframes, social-link hover
+  index.css                    — design tokens, shared classes (card, eyebrow, hotspots), keyframes
   hooks/
     useNowPlaying.js           — Last.fm polling + hint state machine
+    useScrollProgress.js       — 0→1 scroll progress through the pinned hero
+    useReveal.js               — adds .is-visible when an element scrolls into view
   lib/
     supabase.js                — Supabase client (null if env vars missing)
+    oiia.js                    — 🐈
   components/
-    HeroSection.jsx            — hero layout (name, tagline, helmet, hotspots, stats)
+    HeroSection.jsx            — hero layout (name, tagline, helmet, hotspots + intercom track, stats)
+    HelmetSequence.jsx         — scroll-driven frame sequence on a canvas (HELMET_FRAMES)
+    HotspotDot.jsx             — shared dot + pulse + tooltip
     StatsSection.jsx           — Supabase-backed stats row + 3-tap editor modal
-    MusicHotspot.jsx           — music dot + now-playing popup
+    MusicHotspot.jsx           — music dot + now-playing popup (viewport-aware placement)
     GarageSection.jsx          — bike tabs (Lucille / Kawi) with photos + specs
     FeedSection.jsx            — social links + Garage + Instagram embed (responsive two-column)
     GuestbookSection.jsx       — guestbook notes, reactions, GitHub/Google sign-in
     Footer.jsx                 — copyright line
   imports/                     — helmet + bike images (WebP + PNG fallback)
 public/
+  helmet/                      — 48 turntable frames (960px WebP) + sm/ (640px)
+  sounds/                      — audio
   sitemap.xml                  — search-engine sitemap
   robots.txt                   — crawl rules
   favicon.ico, *.png           — favicons + apple-touch-icon
@@ -139,3 +148,4 @@ The Worker source is archived at `workers/update-stats/index.js`.
 - Testing Google sign-in locally requires `VITE_GOOGLE_CLIENT_ID` in `.env` and `http://localhost:3000` in the Google client's authorized JS origins
 - The Google one-tap prompt requires a `https` origin (or `http://localhost`); it won't appear over plain `http` on a LAN IP
 - All images pre-optimized as WebP with PNG fallbacks
+- Helmet frames were cut from a turntable video (raw footage in `/helmet/`, git-ignored). Frame 0 must stay the 3/4 front-right view; if the frames change, update `HELMET_FRAMES` in `HelmetSequence.jsx` and the hotspot coordinates (`HOTSPOTS`, `MUSIC_TRACK`, in % of the unzoomed frame) in `HeroSection.jsx`

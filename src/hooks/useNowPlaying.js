@@ -8,6 +8,8 @@ export default function useNowPlaying() {
   const [recentTracks, setRecentTracks] = useState([])
   const [musicHintState, setMusicHintState] = useState('idle')
   const wasPlaying = useRef(false)
+  // Playback started while the tab was hidden: show the hint when the visitor comes back
+  const pendingHint = useRef(false)
 
   useEffect(() => {
     if (musicHintState === 'showing') {
@@ -30,6 +32,7 @@ export default function useNowPlaying() {
             setNowPlaying(null)
             setRecentTracks([])
             wasPlaying.current = false
+            pendingHint.current = false
             return
           }
           const first = tracks[0]
@@ -51,16 +54,30 @@ export default function useNowPlaying() {
           )
 
           if (isPlaying && !wasPlaying.current) {
-            setMusicHintState('showing')
+            if (document.hidden) pendingHint.current = true
+            else setMusicHintState('showing')
           }
+          if (!isPlaying) pendingHint.current = false
           wasPlaying.current = isPlaying
         })
         .catch(() => {})
     }
 
+    // Back on the tab: refresh right away and play any hint that was held back
+    function onVisible() {
+      if (document.hidden) return
+      if (pendingHint.current && wasPlaying.current) setMusicHintState('showing')
+      pendingHint.current = false
+      fetchNowPlaying()
+    }
+
     fetchNowPlaying()
     const interval = setInterval(fetchNowPlaying, 25000)
-    return () => clearInterval(interval)
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
   }, [])
 
   return { nowPlaying, recentTracks, musicHintState, setMusicHintState }

@@ -225,7 +225,7 @@ export default function GuestbookSection() {
     return (
       <section style={{ padding: '0 24px 80px' }}>
         <div className="feed-container" style={{ textAlign: 'center' }}>
-          <span style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(240,235,224,0.25)' }}>
+          <span style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(var(--text-rgb),0.25)' }}>
             Guestbook unavailable
           </span>
         </div>
@@ -272,14 +272,14 @@ export default function GuestbookSection() {
       <div className="feed-container">
 
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
-          <span style={{ fontSize: 14, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(240,235,224,0.25)' }}>
+          <span style={{ fontSize: 14, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(var(--text-rgb),0.25)' }}>
             Guestbook
           </span>
         </div>
 
         <div style={{
           background: 'rgba(8,8,8,0.97)',
-          border: '1px solid rgba(200,220,20,0.4)',
+          border: '1px solid rgba(var(--accent),0.4)',
           borderRadius: 6,
           boxShadow: '0 4px 24px rgba(0,0,0,0.7)',
           padding: 22,
@@ -299,19 +299,19 @@ export default function GuestbookSection() {
                 ) : (
                   <span style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    width: 28, height: 28, borderRadius: '50%', background: 'rgba(200,220,20,0.15)',
-                    border: '1px solid rgba(200,220,20,0.4)', color: '#c8dc14', fontSize: 12,
+                    width: 28, height: 28, borderRadius: '50%', background: 'rgba(var(--accent),0.15)',
+                    border: '1px solid rgba(var(--accent),0.4)', color: 'var(--accent-solid)', fontSize: 12,
                   }}>
                     {avatarFallback(session.user.user_metadata?.display_name || 'G')}
                   </span>
                 )}
-                <span style={{ fontSize: 13, color: '#f0ebe0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <span style={{ fontSize: 13, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {session.user.user_metadata?.user_name || session.user.user_metadata?.display_name || session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'Signed in'}
                 </span>
               </div>
               <button onClick={handleSignOut} style={{
-                padding: '6px 12px', background: 'transparent', border: '1px solid rgba(200,220,20,0.3)',
-                borderRadius: 4, color: 'rgba(240,235,224,0.6)', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
+                padding: '6px 12px', background: 'transparent', border: '1px solid rgba(var(--accent),0.3)',
+                borderRadius: 4, color: 'rgba(var(--text-rgb),0.6)', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
               }}>
                 Sign out
               </button>
@@ -321,13 +321,13 @@ export default function GuestbookSection() {
               {authError && (
                 <div style={{ fontSize: 11, color: 'rgba(255,80,80,0.8)', marginBottom: 8 }}>{authError}</div>
               )}
-              <div className="login-hint" style={{ fontSize: 11, color: 'rgba(240,235,224,0.35)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10 }}>
+              <div className="login-hint" style={{ fontSize: 11, color: 'rgba(var(--text-rgb),0.35)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10 }}>
                 Login using
               </div>
               <div style={{ display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
                 <button onClick={handleSignIn} className="login-btn" style={{
-                  padding: '8px 18px', background: 'rgba(200,220,20,0.15)', border: '1px solid rgba(200,220,20,0.5)',
-                  borderRadius: 4, color: '#c8dc14', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
+                  padding: '8px 18px', background: 'rgba(var(--accent),0.15)', border: '1px solid rgba(var(--accent),0.5)',
+                  borderRadius: 4, color: 'var(--accent-solid)', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
                   fontWeight: 500, letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 8,
                 }}>
                   <i className="fa-brands fa-github" />
@@ -335,8 +335,8 @@ export default function GuestbookSection() {
                 </button>
 
                 <button onClick={handleGoogleSignIn} className="login-btn" style={{
-                  padding: '8px 18px', background: 'rgba(200,220,20,0.15)', border: '1px solid rgba(200,220,20,0.5)',
-                  borderRadius: 4, color: '#c8dc14', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
+                  padding: '8px 18px', background: 'rgba(var(--accent),0.15)', border: '1px solid rgba(var(--accent),0.5)',
+                  borderRadius: 4, color: 'var(--accent-solid)', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
                   fontWeight: 500, letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 8,
                 }}>
                   <i className="fa-brands fa-google" />
@@ -347,8 +347,8 @@ export default function GuestbookSection() {
           )}
 
           {session && needsName && (
-            <div style={{ marginBottom: 20, padding: 12, background: '#0d0d0d', border: '1px solid rgba(200,220,20,0.25)', borderRadius: 4 }}>
-              <div style={{ fontSize: 12, color: '#f0ebe0', marginBottom: 8 }}>
+            <div style={{ marginBottom: 20, padding: 12, background: '#0d0d0d', border: '1px solid rgba(var(--accent),0.25)', borderRadius: 4 }}>
+              <div style={{ fontSize: 12, color: 'var(--text)', marginBottom: 8 }}>
                 Almost there — what should we call you?
               </div>
               {nameError && (
@@ -363,13 +363,13 @@ export default function GuestbookSection() {
                   onKeyDown={e => { if (e.key === 'Enter') handleSaveName() }}
                   style={{
                     flex: 1, minWidth: 0, padding: '8px 12px', background: '#111',
-                    border: '1px solid rgba(200,220,20,0.3)', borderRadius: 4,
-                    color: '#f0ebe0', fontSize: 12, outline: 'none', fontFamily: 'inherit',
+                    border: '1px solid rgba(var(--accent),0.3)', borderRadius: 4,
+                    color: 'var(--text)', fontSize: 12, outline: 'none', fontFamily: 'inherit',
                   }}
                 />
                 <button onClick={handleSaveName} disabled={savingName || !displayName.trim()} style={{
-                  padding: '7px 16px', background: 'rgba(200,220,20,0.15)', border: '1px solid rgba(200,220,20,0.5)',
-                  borderRadius: 4, color: '#c8dc14', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
+                  padding: '7px 16px', background: 'rgba(var(--accent),0.15)', border: '1px solid rgba(var(--accent),0.5)',
+                  borderRadius: 4, color: 'var(--accent-solid)', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
                   opacity: savingName || !displayName.trim() ? 0.4 : 1,
                 }}>
                   {savingName ? 'Saving…' : 'Save'}
@@ -388,18 +388,18 @@ export default function GuestbookSection() {
                 rows={3}
                 style={{
                   width: '100%', padding: '10px 12px', background: '#111',
-                  border: '1px solid rgba(200,220,20,0.3)', borderRadius: 4,
-                  color: '#f0ebe0', fontSize: 13, outline: 'none', resize: 'vertical',
+                  border: '1px solid rgba(var(--accent),0.3)', borderRadius: 4,
+                  color: 'var(--text)', fontSize: 13, outline: 'none', resize: 'vertical',
                   fontFamily: 'inherit', marginBottom: 8,
                 }}
               />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                <span style={{ fontSize: 11, color: 'rgba(240,235,224,0.35)' }}>
+                <span style={{ fontSize: 11, color: 'rgba(var(--text-rgb),0.35)' }}>
                   {remainingNotes} of {MAX_NOTES} notes left · {message.length}/{MAX_MESSAGE_LENGTH}
                 </span>
                 <button onClick={handlePost} disabled={posting || !message.trim()} style={{
-                  padding: '7px 16px', background: 'rgba(200,220,20,0.15)', border: '1px solid rgba(200,220,20,0.5)',
-                  borderRadius: 4, color: '#c8dc14', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
+                  padding: '7px 16px', background: 'rgba(var(--accent),0.15)', border: '1px solid rgba(var(--accent),0.5)',
+                  borderRadius: 4, color: 'var(--accent-solid)', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
                   opacity: posting || !message.trim() ? 0.4 : 1,
                 }}>
                   {posting ? 'Posting…' : 'Post'}
@@ -413,11 +413,11 @@ export default function GuestbookSection() {
 
           {loading ? (
             <div style={{ textAlign: 'center', padding: '24px 0' }}>
-              <span style={{ fontSize: 11, color: 'rgba(240,235,224,0.35)' }}>Loading entries…</span>
+              <span style={{ fontSize: 11, color: 'rgba(var(--text-rgb),0.35)' }}>Loading entries…</span>
             </div>
           ) : entries.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '24px 0' }}>
-              <span style={{ fontSize: 11, color: 'rgba(240,235,224,0.35)' }}>No entries yet.</span>
+              <span style={{ fontSize: 11, color: 'rgba(var(--text-rgb),0.35)' }}>No entries yet.</span>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -425,7 +425,7 @@ export default function GuestbookSection() {
                 const counts = reactionCounts(entry)
                 return (
                   <div key={entry.id} style={{
-                    background: '#0d0d0d', border: '1px solid rgba(240,235,224,0.08)',
+                    background: '#0d0d0d', border: '1px solid rgba(var(--text-rgb),0.08)',
                     borderRadius: 4, padding: '12px 14px',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
@@ -441,16 +441,16 @@ export default function GuestbookSection() {
                         ) : (
                           <span style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            width: 20, height: 20, borderRadius: '50%', background: 'rgba(200,220,20,0.15)',
-                            border: '1px solid rgba(200,220,20,0.4)', color: '#c8dc14', fontSize: 10,
+                            width: 20, height: 20, borderRadius: '50%', background: 'rgba(var(--accent),0.15)',
+                            border: '1px solid rgba(var(--accent),0.4)', color: 'var(--accent-solid)', fontSize: 10,
                           }}>
                             {avatarFallback(entryName(entry))}
                           </span>
                         )}
-                        <span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(240,235,224,0.6)' }}>
+                        <span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(var(--text-rgb),0.6)' }}>
                           {entryName(entry)}
                         </span>
-                        <span style={{ fontSize: 10, color: 'rgba(240,235,224,0.25)' }}>
+                        <span style={{ fontSize: 10, color: 'rgba(var(--text-rgb),0.25)' }}>
                           {timeAgo(entry.created_at)}
                         </span>
                       </div>
@@ -463,7 +463,7 @@ export default function GuestbookSection() {
                         </button>
                       )}
                     </div>
-                    <p style={{ margin: '0 0 8px', fontSize: 13, color: '#f0ebe0', lineHeight: 1.45, wordBreak: 'break-word' }}>
+                    <p style={{ margin: '0 0 8px', fontSize: 13, color: 'var(--text)', lineHeight: 1.45, wordBreak: 'break-word' }}>
                       {entry.message}
                     </p>
                     <div style={{ display: 'flex', gap: 6 }}>
@@ -477,14 +477,14 @@ export default function GuestbookSection() {
                             title={session ? 'React' : 'Sign in to react'}
                             style={{
                               display: 'flex', alignItems: 'center', gap: 5,
-                              padding: '3px 8px', background: mine ? 'rgba(200,220,20,0.15)' : '#111',
-                              border: `1px solid ${mine ? 'rgba(200,220,20,0.5)' : 'rgba(240,235,224,0.1)'}`,
-                              borderRadius: 20, color: '#f0ebe0', fontSize: 12,
+                              padding: '3px 8px', background: mine ? 'rgba(var(--accent),0.15)' : '#111',
+                              border: `1px solid ${mine ? 'rgba(var(--accent),0.5)' : 'rgba(var(--text-rgb),0.1)'}`,
+                              borderRadius: 20, color: 'var(--text)', fontSize: 12,
                               cursor: session ? 'pointer' : 'default', fontFamily: 'inherit',
                             }}
                           >
                             <span>{emoji}</span>
-                            <span style={{ fontSize: 10, color: 'rgba(240,235,224,0.5)' }}>{count}</span>
+                            <span style={{ fontSize: 10, color: 'rgba(var(--text-rgb),0.5)' }}>{count}</span>
                           </button>
                         )
                       })}

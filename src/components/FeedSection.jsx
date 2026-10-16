@@ -1,5 +1,6 @@
 import { forwardRef } from 'react'
 import GarageSection from './GarageSection'
+import useReveal from '../hooks/useReveal'
 
 const SOCIAL_LINKS = [
   { id: 'facebook', href: 'https://www.facebook.com/ald.jan01/', color: '#1877F2', cls: 'fa-brands fa-facebook' },
@@ -11,20 +12,22 @@ const SOCIAL_LINKS = [
 ]
 
 const FeedSection = forwardRef(function FeedSection(_props, ref) {
+  const linksRef = useReveal()
+  const postsRef = useReveal()
   return (
     <section ref={ref} style={{ padding: '64px 24px 80px' }}>
       <div className="feed-container">
 
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <span style={{ fontSize: 14, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(240,235,224,0.25)' }}>
+          <span style={{ fontSize: 13, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--text-faint)' }}>
             Find me on
           </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(4px, 2vw, 16px)', padding: '0 0 100px' }}>
+        <div ref={linksRef} className="reveal" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(4px, 2vw, 16px)', padding: '0 0 96px' }}>
           {SOCIAL_LINKS.map((link, i) => (
             <span key={link.id} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(20px, 2vw, 30px)' }}>
-              {i > 0 && <span style={{ color: 'rgba(240,235,224,0.2)', fontSize: 'clamp(6px, 1.5vw, 10px)' }}>·</span>}
+              {i > 0 && <span style={{ color: 'rgba(var(--text-rgb),0.2)', fontSize: 'clamp(6px, 1.5vw, 10px)' }}>·</span>}
               <a
                 href={link.href}
                 target="_blank"
@@ -47,25 +50,17 @@ const FeedSection = forwardRef(function FeedSection(_props, ref) {
 
           <GarageSection />
 
-          <div style={{
-            background: 'rgba(8,8,8,0.97)',
-            border: '1px solid rgba(200,220,20,0.4)',
-            borderRadius: 6,
-            boxShadow: '0 4px 24px rgba(0,0,0,0.7)',
-            padding: 22,
-          }}>
+          <div ref={postsRef} className="card reveal" style={{ '--delay': '0.12s', padding: 22 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ width: 16, height: 1, background: 'rgba(200,220,20,0.5)' }} />
-                <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(200,220,20,0.8)' }}>
-                  Latest Posts
-                </span>
+              <div className="eyebrow" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span className="eyebrow-rule" />
+                Latest Posts
               </div>
               <a
                 href="https://instagram.com/aldjan.pov"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(240,235,224,0.3)', textDecoration: 'none' }}
+                style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-faint)', textDecoration: 'none' }}
               >
                 @aldjan.pov ↗
               </a>

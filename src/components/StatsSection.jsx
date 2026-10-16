@@ -46,7 +46,7 @@ export default function StatsSection() {
     setError('')
     const updated = stats.map(([_, lbl], i) => [edits[i] || stats[i][0], lbl])
 
-    // Production path: call Vercel serverless API
+    // Cloudflare Worker validates the password and writes to Supabase
     try {
       const res = await fetch('https://stats.aldjan.workers.dev', {
         method: 'POST',
@@ -91,8 +91,8 @@ export default function StatsSection() {
       <div style={rowStyle} onClick={handleTap}>
         {stats.map(([val, lbl]) => (
           <div key={lbl} style={{ textAlign: 'center' }}>
-            <p style={{ margin: 0, fontSize: 'clamp(11px, 2.2vh, 22px)', fontWeight: 500, color: flash ? '#c8dc14' : '#f0ebe0', letterSpacing: '-0.02em', transition: 'color 0.1s' }}>{val}</p>
-            <p style={{ margin: 0, fontSize: 'clamp(7px, 1.2vh, 13px)', color: 'rgba(240,235,224,0.3)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 'clamp(1px, 0.3vh, 3px)' }}>{lbl}</p>
+            <p style={{ margin: 0, fontSize: 'clamp(11px, 2.2vh, 22px)', fontWeight: 500, color: flash ? 'var(--accent-solid)' : 'var(--text)', letterSpacing: '-0.02em', transition: 'color 0.1s' }}>{val}</p>
+            <p style={{ margin: 0, fontSize: 'clamp(8px, 1.2vh, 12px)', color: 'var(--text-faint)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 'clamp(1px, 0.3vh, 3px)' }}>{lbl}</p>
           </div>
         ))}
       </div>
@@ -103,15 +103,8 @@ export default function StatsSection() {
           background: 'rgba(0,0,0,0.8)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <div style={{
-            background: 'rgba(8,8,8,0.97)',
-            border: '1px solid rgba(200,220,20,0.4)',
-            borderRadius: 8,
-            boxShadow: '0 6px 32px rgba(0,0,0,0.8)',
-            padding: 24,
-            minWidth: 300,
-          }}>
-            <div style={{ fontSize: 12, color: 'rgba(200,220,20,0.8)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16, fontWeight: 500 }}>
+          <div className="card" style={{ padding: 24, minWidth: 300 }}>
+            <div className="eyebrow" style={{ fontSize: 12, marginBottom: 16 }}>
               Edit Stats
             </div>
 
@@ -122,8 +115,8 @@ export default function StatsSection() {
               onChange={e => { setPassword(e.target.value); setError('') }}
               style={{
                 width: '100%', marginBottom: 12, padding: '8px 10px',
-                background: '#111', border: '1px solid rgba(200,220,20,0.3)',
-                borderRadius: 4, color: '#f0ebe0', fontSize: 13,
+                background: '#111', border: '1px solid rgba(var(--accent),0.3)',
+                borderRadius: 4, color: 'var(--text)', fontSize: 13,
                 outline: 'none', fontFamily: 'inherit',
               }}
             />
@@ -135,12 +128,12 @@ export default function StatsSection() {
                   onChange={e => setEdits(prev => { const next = [...prev]; next[i] = e.target.value; return next })}
                   style={{
                     width: 100, padding: '6px 8px',
-                    background: '#111', border: '1px solid rgba(200,220,20,0.3)',
-                    borderRadius: 4, color: '#f0ebe0', fontSize: 13,
+                    background: '#111', border: '1px solid rgba(var(--accent),0.3)',
+                    borderRadius: 4, color: 'var(--text)', fontSize: 13,
                     outline: 'none', fontFamily: 'inherit',
                   }}
                 />
-                <span style={{ fontSize: 11, color: 'rgba(240,235,224,0.35)' }}>{stats[i][1]}</span>
+                <span style={{ fontSize: 11, color: 'rgba(var(--text-rgb),0.35)' }}>{stats[i][1]}</span>
               </div>
             ))}
 
@@ -150,15 +143,15 @@ export default function StatsSection() {
 
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <button onClick={() => setShowModal(false)} disabled={saving} style={{
-                padding: '6px 14px', background: 'transparent', border: '1px solid rgba(200,220,20,0.3)',
-                borderRadius: 4, color: 'rgba(240,235,224,0.6)', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
+                padding: '6px 14px', background: 'transparent', border: '1px solid rgba(var(--accent),0.3)',
+                borderRadius: 4, color: 'rgba(var(--text-rgb),0.6)', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
                 opacity: saving ? 0.4 : 1,
               }}>
                 Cancel
               </button>
               <button onClick={handleSave} disabled={saving} style={{
-                padding: '6px 14px', background: 'rgba(200,220,20,0.15)', border: '1px solid rgba(200,220,20,0.5)',
-                borderRadius: 4, color: '#c8dc14', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
+                padding: '6px 14px', background: 'rgba(var(--accent),0.15)', border: '1px solid rgba(var(--accent),0.5)',
+                borderRadius: 4, color: 'var(--accent-solid)', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
                 opacity: saving ? 0.4 : 1,
               }}>
                 {saving ? 'Saving…' : 'Save'}
