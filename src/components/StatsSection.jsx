@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { supabase } from '../lib/supabase'
 
 const DEFAULT_STATS = [['1.4k', 'Followers'], ['40k+', 'Kilometers'], ['9', 'Countries']]
@@ -97,7 +98,7 @@ export default function StatsSection() {
         ))}
       </div>
 
-      {showModal && (
+      {showModal && createPortal(
         <div style={{
           position: 'fixed', inset: 0, zIndex: 100,
           background: 'rgba(0,0,0,0.8)',
@@ -159,7 +160,8 @@ export default function StatsSection() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   )
