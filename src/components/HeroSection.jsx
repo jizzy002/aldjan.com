@@ -88,7 +88,7 @@ function LetterDrift({ text }) {
 const HOTSPOTS = [
   { id: 0, label: 'Instagram', color: 'var(--insta)', icon: 'fa-brands fa-instagram', href: 'https://instagram.com/aldjan.pov', x: 42, y: 62 },
   {
-    id: 1, label: 'Gear', x: 81, y: 65,
+    id: 1, label: 'Gear', x: 77, y: 62,
     content: {
       title: 'What gear do I use?',
       items: [
@@ -106,9 +106,8 @@ const HELMET_ZOOM = 1.25
 // The music dot rides on the intercom unit, which only faces the viewer mid-turn: [frame, x%, y%]
 const MUSIC_TRACK = [
   // 18, 22 and 26 are hand-placed; the rest follow a smooth curve through them
-  [17, 71.1, 67.4], [18, 66, 68], [19, 61.1, 68.4], [20, 56.3, 68.8], [21, 51.6, 68.9],
-  [22, 47, 69], [23, 42.6, 68.9], [24, 38.3, 68.8], [25, 34.1, 68.4], [26, 30, 68],
-  [27, 26.1, 67.4],
+  [17, 68.3, 68.8], [18, 62, 69], [19, 56.3, 69.1], [20, 51, 69.1], [21, 46.3, 69.1],
+  [22, 42, 69], [23, 38.3, 68.8], [24, 35, 68.6], [25, 32.3, 68.3],
 ]
 // Static illustration (no rotation): dot on the ear area
 const MUSIC_STATIC = { x: 23, y: 20 }
