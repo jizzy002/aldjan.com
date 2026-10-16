@@ -3,13 +3,22 @@ import { useState, useRef, useEffect } from 'react'
 const LASTFM_KEY = import.meta.env.VITE_LASTFM_API_KEY
 const LASTFM_USER = import.meta.env.VITE_LASTFM_USERNAME
 
-export default function useNowPlaying() {
+export default function useNowPlaying(hold = false) {
   const [nowPlaying, setNowPlaying] = useState(null)
   const [recentTracks, setRecentTracks] = useState([])
   const [musicHintState, setMusicHintState] = useState('idle')
   const wasPlaying = useRef(false)
-  // Playback started while the tab was hidden: show the hint when the visitor comes back
+  // Playback started while the hint couldn't be seen (tab hidden, intro running, hero
+  // scrolled away): show it as soon as it can be seen
   const pendingHint = useRef(false)
+  const holdRef = useRef(hold)
+  holdRef.current = hold
+
+  useEffect(() => {
+    if (hold || document.hidden) return
+    if (pendingHint.current && wasPlaying.current) setMusicHintState('showing')
+    pendingHint.current = false
+  }, [hold])
 
   useEffect(() => {
     if (musicHintState === 'showing') {
@@ -54,7 +63,7 @@ export default function useNowPlaying() {
           )
 
           if (isPlaying && !wasPlaying.current) {
-            if (document.hidden) pendingHint.current = true
+            if (document.hidden || holdRef.current) pendingHint.current = true
             else setMusicHintState('showing')
           }
           if (!isPlaying) pendingHint.current = false
@@ -66,8 +75,10 @@ export default function useNowPlaying() {
     // Back on the tab: refresh right away and play any hint that was held back
     function onVisible() {
       if (document.hidden) return
-      if (pendingHint.current && wasPlaying.current) setMusicHintState('showing')
-      pendingHint.current = false
+      if (!holdRef.current) {
+        if (pendingHint.current && wasPlaying.current) setMusicHintState('showing')
+        pendingHint.current = false
+      }
       fetchNowPlaying()
     }
 

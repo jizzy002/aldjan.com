@@ -10,7 +10,8 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matc
 const canHover = window.matchMedia('(hover: hover)').matches
 
 export default function App() {
-  const { nowPlaying, recentTracks, musicHintState, setMusicHintState } = useNowPlaying()
+  const [musicHold, setMusicHold] = useState(true) // hero reports: intro running / scrolled away
+  const { nowPlaying, recentTracks, musicHintState, setMusicHintState } = useNowPlaying(musicHold)
   const feedRef = useRef(null)
   const [sequenceFailed, setSequenceFailed] = useState(false)
   const sequenceEnabled = HELMET_SEQUENCE_ENABLED && !sequenceFailed
@@ -55,6 +56,7 @@ export default function App() {
         sequenceEnabled={sequenceEnabled}
         reducedMotion={reducedMotion}
         onSequenceFail={onSequenceFail}
+        onMusicHold={setMusicHold}
       />
       <FeedSection ref={feedRef} />
       <GuestbookSection />

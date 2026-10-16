@@ -105,6 +105,10 @@ const HOTSPOTS = [
 ]
 
 const MUSIC_ID = 3
+// "tap the dots · drag to spin": appears once the helmet has settled in, then fades away
+const HINT_DELAY = 1000
+const HINT_DURATION = 3500
+const HINT_FADE = 800 // ms; the tap hint fully fades out before the listening hint fades in
 // Photo frames have empty margin around the helmet; draw them this much larger than the box
 const HELMET_ZOOM = 1.25
 // Decorative window light from the left page edge (just a prop, doesn't relight the photos)
@@ -155,11 +159,21 @@ function CornerAccent({ position }) {
 
 export default function HeroSection({
   nowPlaying, recentTracks, musicHintState, setMusicHintState, onScrollToFeed,
-  sequenceEnabled, reducedMotion, onSequenceFail,
+  sequenceEnabled, reducedMotion, onSequenceFail, onMusicHold,
 }) {
   const [active, setActive] = useState(null)
   const [hoveredSpot, setHoveredSpot] = useState(null)
-  const [hintVisible, setHintVisible] = useState(true)
+  const [hintVisible, setHintVisible] = useState(false)
+  const hintDismissed = useRef(false)
+  // first-load intro: wait -> hint (hint text + helmet wiggle together) -> done
+  // (the "listening" hint is held by useNowPlaying until the intro is done)
+  const [intro, setIntro] = useState('wait')
+  // once the visitor interacts, the hint never (re)appears and the intro skips ahead
+  function dismissHint() {
+    hintDismissed.current = true
+    setHintVisible(false)
+    setIntro('done')
+  }
   const supportsHover = useState(() => window.matchMedia('(hover: hover)').matches)[0]
   const [spinTurns, setSpinTurns] = useState(0)
   const [spinning, setSpinning] = useState(false)
@@ -180,7 +194,7 @@ export default function HeroSection({
   const drag = useHelmetDrag({
     frames: HELMET_FRAMES,
     reducedMotion,
-    onDragStart: () => setHintVisible(false),
+    onDragStart: dismissHint,
   })
   const rotation = drag.turns + spinTurns
   // Same frame the canvas is showing, so the dots stay glued to the helmet
@@ -211,7 +225,7 @@ export default function HeroSection({
     spinningRef.current = true
     setSpinning(true)
     setActive(null)
-    setHintVisible(false)
+    dismissHint()
     new Image().src = CAT.url // start loading the cat right away
     setCatLeaving(false)
     setCatFrame(0)
@@ -295,24 +309,52 @@ export default function HeroSection({
     }
   }
 
+  // intro step 1: "tap the dots · drag to spin", after the entrance animation
   useEffect(() => {
-    if (!hintVisible) return
-    const timer = setTimeout(() => setHintVisible(false), 3500)
-    return () => clearTimeout(timer)
-  }, [hintVisible])
+    const t = setTimeout(() => setIntro(p => (p === 'wait' ? 'hint' : p)), HINT_DELAY)
+    return () => clearTimeout(t)
+  }, [])
+  useEffect(() => {
+    if (intro !== 'hint') return
+    setHintVisible(true)
+    let t2
+    const t = setTimeout(() => {
+      setHintVisible(false)
+      // end the intro (which releases the listening hint) only once the fade-out is done
+      t2 = setTimeout(() => setIntro('done'), HINT_FADE)
+    }, HINT_DURATION)
+    return () => {
+      clearTimeout(t)
+      clearTimeout(t2)
+    }
+  }, [intro])
 
   // hidden front dots take their popups with them
   useEffect(() => {
     if (hideSpots) setActive(a => (a === MUSIC_ID ? a : null))
   }, [hideSpots])
 
-  // once the coarse frames are in, swing the helmet a little to show it can be turned
+  // the helmet swings a little while the hint is up (once the frames around the front are in)
   const wiggle = drag.wiggle
   useEffect(() => {
-    if (!seqReady) return
-    const t = setTimeout(wiggle, 900)
+    if (intro !== 'hint' || !sequenceEnabled || reducedMotion || !seqReady || hintDismissed.current) return
+    const t = setTimeout(wiggle, 300)
     return () => clearTimeout(t)
-  }, [seqReady, wiggle])
+  }, [intro, seqReady, sequenceEnabled, reducedMotion, wiggle])
+
+  // listening hint only while the intro is over and the hero is on screen
+  const sectionRef = useRef(null)
+  const [heroInView, setHeroInView] = useState(true)
+  useEffect(() => {
+    const el = sectionRef.current
+    if (!el || !('IntersectionObserver' in window)) return
+    const io = new IntersectionObserver(([e]) => setHeroInView(e.intersectionRatio >= 0.5), { threshold: [0, 0.5, 1] })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  useEffect(() => {
+    onMusicHold?.(intro !== 'done' || !heroInView)
+  }, [intro, heroInView, onMusicHold])
 
   useEffect(() => {
     function handleClick(e) {
@@ -326,6 +368,7 @@ export default function HeroSection({
 
   return (
     <section
+      ref={sectionRef}
       style={{
         height: '100svh',
         display: 'flex',
@@ -445,7 +488,7 @@ export default function HeroSection({
                       isActive={isActive}
                       pulse
                       showTooltip={supportsHover && hoveredSpot === spot.id}
-                      onClick={() => { setActive(isActive ? null : spot.id); setHintVisible(false) }}
+                      onClick={() => { setActive(isActive ? null : spot.id); dismissHint() }}
                       onMouseEnter={() => setHoveredSpot(spot.id)}
                       onMouseLeave={() => setHoveredSpot(null)}
                     />
@@ -532,21 +575,34 @@ export default function HeroSection({
           {catFrame !== null && <OiiaCat frame={catFrame} leaving={catLeaving} />}
         </div>
 
-        {/* Click hint */}
+        {/* Hints: two lines stacked in one spot so one can fade out before the other fades in */}
         <div style={{
           marginTop: 10,
+          display: 'grid',
+          justifyItems: 'center',
           fontFamily: 'var(--font-display)',
           fontStyle: 'italic',
           fontSize: 13,
           letterSpacing: '0.04em',
-          color: listeningHint ? 'rgba(var(--music),0.85)' : 'rgba(var(--accent),0.75)',
-          opacity: (listeningHint ? musicHintState === 'showing' : hintVisible) && !hideSpots ? 1 : 0,
-          transition: 'opacity 1.5s ease',
           pointerEvents: 'none',
         }}>
-          {listeningHint
-            ? '♫ he is listening to something, spin the helmet to find it ♫'
-            : sequenceEnabled ? 'tap the dots · drag to spin' : 'tap the dots'}
+          <span style={{
+            gridArea: '1 / 1',
+            color: 'rgba(var(--accent),0.75)',
+            // stays up through the intro wiggle; hides only for the OIIA spin
+            opacity: hintVisible && !spinning ? 1 : 0,
+            transition: `opacity ${HINT_FADE}ms ease`,
+          }}>
+            {sequenceEnabled ? 'tap the dots · drag to spin' : 'tap the dots'}
+          </span>
+          <span style={{
+            gridArea: '1 / 1',
+            color: 'rgba(var(--music),0.85)',
+            opacity: listeningHint && musicHintState === 'showing' && !hideSpots ? 1 : 0,
+            transition: `opacity ${HINT_FADE}ms ease`,
+          }}>
+            ♫ he is listening to something, spin the helmet to find it ♫
+          </span>
         </div>
 
         <div>
