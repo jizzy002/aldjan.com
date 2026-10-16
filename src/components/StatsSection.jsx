@@ -125,6 +125,7 @@ export default function StatsSection() {
               <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 8 }}>
                 <input
                   value={edits[i] || ''}
+                  maxLength={12}
                   onChange={e => setEdits(prev => { const next = [...prev]; next[i] = e.target.value; return next })}
                   style={{
                     width: 100, padding: '6px 8px',

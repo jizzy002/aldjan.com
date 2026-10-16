@@ -223,7 +223,7 @@ export default function GuestbookSection() {
 
   if (!supabase) {
     return (
-      <section style={{ padding: '0 24px 80px' }}>
+      <section id="guestbook" style={{ padding: '0 24px 80px' }}>
         <div className="feed-container" style={{ textAlign: 'center' }}>
           <span style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(var(--text-rgb),0.25)' }}>
             Guestbook unavailable
@@ -268,7 +268,7 @@ export default function GuestbookSection() {
   }
 
   return (
-    <section style={{ padding: '0 24px 80px' }}>
+    <section id="guestbook" style={{ padding: '0 24px 80px' }}>
       <div className="feed-container">
 
         <div style={{ textAlign: 'center', marginBottom: 20 }}>

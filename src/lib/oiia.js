@@ -32,3 +32,13 @@ function clipSpeed(t) {
 }
 
 export const SPIN_SETTLE_SPEED = 1.2
+
+// The cat that joins in: sprite sheet cut from a green-screen clip of the meme.
+// Cell 0 = standing, cells 1..spinFrames = two revolutions of the spin.
+export const CAT = {
+  url: '/oiia/cat-sprite.webp',
+  cols: 6,
+  rows: 4,
+  spinFrames: 22,
+  framesPerTurn: 11,
+}

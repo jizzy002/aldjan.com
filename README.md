@@ -9,7 +9,7 @@ Minimalist motorcycle-rider landing page. Built with **React 19** + **Vite 8**.
 - **360° helmet** — drag/swipe (with momentum) or use the arrow keys to turn the LS2 Strobe II through 48 real turntable photos (canvas, progressively preloaded, 640px set on mobile). No scroll-jacking: vertical swipes still scroll the page. A short wiggle on load hints that it turns (skipped with `prefers-reduced-motion`). Falls back to the static illustration if frames fail to load
 - **Helmet hotspots** — interactive dots on the helmet (Instagram link, Gear info); they show when the helmet faces front
 - **Window light** — a decorative light ray from the left page edge (behind the helmet, never relights the photos) with a lever switch on the edge (click, flick or arrow keys; remembered per visitor). Toggle both in code via `LIGHT_RAY` / `LIGHT_SWITCH` in `HeroSection.jsx`
-- **Last.fm now-playing** — polls every 25s (and on tab return). The music dot rides on the helmet's intercom unit and only appears when you turn the intercom into view; the popup re-positions itself to stay on screen
+- **Last.fm now-playing** — polls every 7.5s (and on tab return). The music dot rides on the helmet's intercom unit and only appears when you turn the intercom into view; the popup re-positions itself to stay on screen
 - **Garage tabs** — bike showcase in the feed section (Lucille: Suzuki GSX750F, Kawi: Kawasaki EN500), side by side with Instagram on desktop
 - **Social links** — Facebook, Snapchat, Telegram, LinkedIn, YouTube, TikTok via Font Awesome
 - **Instagram feed** — SnapWidget embed with latest posts
@@ -126,7 +126,7 @@ Set these in **both** Cloudflare Pages and Vercel (Dashboard → project → Set
 
 ### Cloudflare Worker
 
-The stats editor password is validated by a Cloudflare Worker at `stats.aldjan.workers.dev`.
+The stats editor password is validated by a Cloudflare Worker at `stats.aldjan.workers.dev`. It only accepts requests from the site's own origins (`ALLOWED_ORIGINS`), compares the password in constant time with a delay on failure, caps the body size and validates the stats shape. For per-IP attempt limits, add a Workers rate-limiting binding named `RATE_LIMITER` (or a Cloudflare WAF rate-limiting rule on the worker route).
 Worker variables set in the Cloudflare Dashboard:
 
 | Variable | Notes |
@@ -140,6 +140,7 @@ The Worker source is archived at `workers/update-stats/index.js`.
 ### Security
 
 - `VITE_` env vars are bundled in the client — they are public by design
+- Security headers (nosniff, referrer policy, no third-party framing, permissions policy) are set via `public/_headers` (Cloudflare Pages) and `vercel.json` (Vercel)
 - `PASSWORD` and `SUPABASE_SERVICE_KEY` are set in Cloudflare only, **never** in the client bundle or the repo
 - The `stats` table allows reads only (`supabase/stats-rls.sql`); all writes require the service role, so the Cloudflare Worker password is the only gate for writing stats
 - The guestbook table uses RLS plus a `security definer` trigger that derives `user_id`, names, avatars, and emails from `auth.users`/JWT — the client can't spoof them — and hard-caps 3 notes per account

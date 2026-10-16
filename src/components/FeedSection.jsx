@@ -1,5 +1,6 @@
 import { forwardRef } from 'react'
 import GarageSection from './GarageSection'
+import AboutSection from './AboutSection'
 import useReveal from '../hooks/useReveal'
 
 const SOCIAL_LINKS = [
@@ -24,7 +25,7 @@ const FeedSection = forwardRef(function FeedSection(_props, ref) {
           </span>
         </div>
 
-        <div ref={linksRef} className="reveal" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(4px, 2vw, 16px)', padding: '0 0 96px' }}>
+        <div ref={linksRef} className="reveal" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(4px, 2vw, 16px)', padding: '0 0 56px' }}>
           {SOCIAL_LINKS.map((link, i) => (
             <span key={link.id} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(20px, 2vw, 30px)' }}>
               {i > 0 && <span style={{ color: 'rgba(var(--text-rgb),0.2)', fontSize: 'clamp(6px, 1.5vw, 10px)' }}>·</span>}
@@ -45,6 +46,8 @@ const FeedSection = forwardRef(function FeedSection(_props, ref) {
             </span>
           ))}
         </div>
+
+        <AboutSection />
 
         <div className="feed-layout">
 

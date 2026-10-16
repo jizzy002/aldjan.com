@@ -5,7 +5,8 @@ import MusicHotspot from './MusicHotspot'
 import StatsSection from './StatsSection'
 import LightRay from './LightRay'
 import LightSwitch from './LightSwitch'
-import { OIIA_ENABLED, playOiia, SPIN_SETTLE_SPEED } from '../lib/oiia'
+import { OIIA_ENABLED, playOiia, SPIN_SETTLE_SPEED, CAT } from '../lib/oiia'
+import OiiaCat from './OiiaCat'
 import useHelmetDrag from '../hooks/useHelmetDrag'
 
 const TEXT_RGB = [240, 235, 224]
@@ -113,8 +114,8 @@ const LIGHT_SWITCH = false
 // The music dot rides on the intercom unit, which only faces the viewer mid-turn: [frame, x%, y%]
 const MUSIC_TRACK = [
   // 18, 22 and 26 are hand-placed; the rest follow a smooth curve through them
-  [17, 66.5, 69.5], [18, 62, 69.5], [19, 57.5, 69.5], [20, 52.5, 69.5], [21, 47, 69.2],
-  [22, 42, 69], [23, 38, 69], [24, 34.3, 69], [25, 30.5, 68.5],
+  [16, 71, 69.5], [17, 66.5, 69.5], [18, 62, 69.5], [19, 57.5, 69.5], [20, 52.5, 69.5],
+  [21, 47, 69.2], [22, 42, 69], [23, 38, 69], [24, 34.3, 69], [25, 30.5, 68.5],
 ]
 // Static illustration (no rotation): dot on the ear area
 const MUSIC_STATIC = { x: 23, y: 20 }
@@ -163,6 +164,8 @@ export default function HeroSection({
   const [spinTurns, setSpinTurns] = useState(0)
   const [spinning, setSpinning] = useState(false)
   const spinFrame = useRef(0)
+  const [catFrame, setCatFrame] = useState(null) // null = no cat
+  const [catLeaving, setCatLeaving] = useState(false)
   const [seqReady, setSeqReady] = useState(false)
   // window light on/off (remembered per visitor)
   const [lightOn, setLightOn] = useState(() => {
@@ -209,23 +212,41 @@ export default function HeroSection({
     setSpinning(true)
     setActive(null)
     setHintVisible(false)
+    new Image().src = CAT.url // start loading the cat right away
+    setCatLeaving(false)
+    setCatFrame(0)
     const { duration, speedAt } = await playOiia()
     const start = performance.now()
     let last = start
     let turns = 0
+    let catPos = 0
     const tick = now => {
       const t = (now - start) / 1000
       const dt = (now - last) / 1000
       last = now
       if (t < duration) {
-        turns += speedAt(t) * dt
+        const speed = speedAt(t)
+        turns += speed * dt
+        // the cat spins with the "oiia" bursts and stands still in the pauses
+        if (speed > 1) {
+          catPos += speed * CAT.framesPerTurn * dt
+          setCatFrame(1 + (Math.floor(catPos) % CAT.spinFrames))
+        } else {
+          setCatFrame(0)
+        }
       } else {
+        setCatFrame(0)
         const next = Math.ceil(turns)
         turns = Math.min(next, turns + SPIN_SETTLE_SPEED * dt)
         if (turns >= next) {
           setSpinTurns(0)
           setSpinning(false)
           spinningRef.current = false
+          setCatLeaving(true)
+          setTimeout(() => {
+            setCatFrame(null)
+            setCatLeaving(false)
+          }, 320)
           return
         }
       }
@@ -372,7 +393,11 @@ export default function HeroSection({
               // vertical swipes still scroll the page; horizontal ones spin the helmet
               touchAction: sequenceEnabled ? 'pan-y' : 'manipulation',
               cursor: sequenceEnabled ? (drag.dragging ? 'grabbing' : 'grab') : undefined,
-              transform: spinning ? `translateY(${-Math.abs(Math.sin(spinTurns * Math.PI * 2)) * 8}px)` : undefined,
+              // during the easter egg the helmet drifts down-left so the cat can rise up behind it
+              transform: spinning
+                ? `translate(-14%, 12%) scale(0.82) translateY(${-Math.abs(Math.sin(spinTurns * Math.PI * 2)) * 8}px)`
+                : 'none',
+              transition: 'transform 0.5s var(--ease-out)',
             }}
           >
             <HelmetSequence
@@ -504,6 +529,7 @@ export default function HeroSection({
               />
             )}
           </div>
+          {catFrame !== null && <OiiaCat frame={catFrame} leaving={catLeaving} />}
         </div>
 
         {/* Click hint */}

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 const DRAG_THRESHOLD = 6 // px before a press becomes a drag (below that it's a tap)
 const PX_PER_TURN = 1.1 // one full turn per ~1.1 widths of the helmet box
+const DIRECTION = -1 // 1 or -1: which way a rightward drag turns the helmet
 const FRICTION = 4.5 // momentum decay per second
 const MIN_SPEED = 0.05 // turns/s where momentum stops
 const FRONT_MAGNET = 2.5 // frames: releasing this close to the front snaps to it
@@ -127,9 +128,9 @@ export default function useHelmetDrag({ frames, reducedMotion, onDragStart }) {
       try { d.el.setPointerCapture(e.pointerId) } catch { /* pointer already gone */ }
     }
     const perTurn = d.width * PX_PER_TURN
-    setTurns(d.base + dx / perTurn)
+    setTurns(d.base + (DIRECTION * dx) / perTurn)
     const dt = Math.max(1, e.timeStamp - d.lastT) / 1000
-    d.vel = d.vel * 0.6 + ((e.clientX - d.lastX) / perTurn / dt) * 0.4
+    d.vel = d.vel * 0.6 + ((DIRECTION * (e.clientX - d.lastX)) / perTurn / dt) * 0.4
     d.lastX = e.clientX
     d.lastT = e.timeStamp
   }
@@ -158,7 +159,7 @@ export default function useHelmetDrag({ frames, reducedMotion, onDragStart }) {
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
       e.preventDefault()
       interacted.current = true
-      step(e.key === 'ArrowRight' ? 1 : -1)
+      step(e.key === 'ArrowRight' ? DIRECTION : -DIRECTION)
     } else if (e.key === 'Home') {
       e.preventDefault()
       interacted.current = true

@@ -72,7 +72,7 @@ export default function useNowPlaying() {
     }
 
     fetchNowPlaying()
-    const interval = setInterval(fetchNowPlaying, 25000)
+    const interval = setInterval(fetchNowPlaying, 7500)
     document.addEventListener('visibilitychange', onVisible)
     return () => {
       clearInterval(interval)
