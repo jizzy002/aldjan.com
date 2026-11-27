@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
-const OWNER_USERNAME = 'jizzy002'
 const MAX_NOTES = 3
 const MAX_MESSAGE_LENGTH = 300
 const EMOJIS = ['👍', '🔥', '❤️', '😄']
@@ -61,7 +60,7 @@ export default function GuestbookSection() {
     if (!supabase) return
     const { data } = await supabase
       .from('guestbook_entries')
-      .select('*, guestbook_reactions(*)')
+      .select('id, user_id, github_username, github_avatar, display_name, message, created_at, guestbook_reactions(id, user_id, emoji)')
       .order('created_at', { ascending: false })
       .limit(50)
     if (data) setEntries(data)
@@ -69,13 +68,8 @@ export default function GuestbookSection() {
 
   const loadUsedNotes = useCallback(async user => {
     if (!supabase || !user) return
-    const profileEmail = (user.email || user.user_metadata?.email || '').toLowerCase()
-    let query = supabase
-      .from('guestbook_entries')
-      .select('id', { count: 'exact', head: true })
-    query = profileEmail ? query.eq('profile_email', profileEmail) : query.eq('user_id', user.id)
-    const { count } = await query
-    setUsedNotes(count ?? 0)
+    const { data } = await supabase.rpc('guestbook_used_notes')
+    setUsedNotes(data ?? 0)
   }, [])
 
   useEffect(() => {
@@ -168,12 +162,7 @@ export default function GuestbookSection() {
       return
     }
 
-    const profileEmail = (session.user.email || session.user.user_metadata?.email || '').toLowerCase()
-    let query = supabase
-      .from('guestbook_entries')
-      .select('id', { count: 'exact', head: true })
-    query = profileEmail ? query.eq('profile_email', profileEmail) : query.eq('user_id', session.user.id)
-    const { count } = await query
+    const { data: count } = await supabase.rpc('guestbook_used_notes')
     if (count >= MAX_NOTES) {
       setError(`Max ${MAX_NOTES} notes per account`)
       setPosting(false)
@@ -233,7 +222,7 @@ export default function GuestbookSection() {
     )
   }
 
-  const isOwner = session?.user?.user_metadata?.user_name === OWNER_USERNAME
+  const isOwner = session?.user?.app_metadata?.guestbook_owner === true
   const needsName = !!session && !session.user.user_metadata?.user_name
     && !session.user.user_metadata?.display_name && !session.user.user_metadata?.full_name
     && !session.user.user_metadata?.name
