@@ -124,6 +124,8 @@ Set these in **both** Cloudflare Pages and Vercel (Dashboard → project → Set
    - `http://localhost:3000`
 3. Run `supabase/guestbook.sql` in the Supabase SQL editor (tables, RLS, limits trigger) — includes `drop policy if exists` guards, safe to re-run.
 
+For an existing database, apply `supabase/guestbook-security-migration.sql` before deploying client changes. It removes public read access to `profile_email` and moves guestbook moderation to a trusted `app_metadata.guestbook_owner` claim. Set that boolean claim to `true` on the owner's Auth user using a server-side admin operation, then have the owner sign in again to refresh the JWT. Without the claim, users can delete only their own notes.
+
 ### Cloudflare Worker
 
 The stats editor password is validated by a Cloudflare Worker at `stats.aldjan.workers.dev`. It only accepts requests from the site's own origins (`ALLOWED_ORIGINS`), compares the password in constant time with a delay on failure, caps the body size and validates the stats shape. For per-IP attempt limits, add a Workers rate-limiting binding named `RATE_LIMITER` (or a Cloudflare WAF rate-limiting rule on the worker route).

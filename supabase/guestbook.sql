@@ -37,7 +37,11 @@ create index if not exists guestbook_entries_profile_email_idx
 alter table public.guestbook_entries enable row level security;
 alter table public.guestbook_reactions enable row level security;
 
-grant select on public.guestbook_entries to anon, authenticated;
+-- Public readers can see notes, but never the email used for the note limit.
+revoke select on public.guestbook_entries from public, anon, authenticated;
+revoke select (profile_email) on public.guestbook_entries from public, anon, authenticated;
+grant select (id, user_id, github_username, github_avatar, display_name, message, created_at)
+  on public.guestbook_entries to anon, authenticated;
 grant insert, delete on public.guestbook_entries to authenticated;
 grant select on public.guestbook_reactions to anon, authenticated;
 grant insert, delete on public.guestbook_reactions to authenticated;
@@ -52,12 +56,12 @@ drop policy if exists "guestbook_entries_insert" on public.guestbook_entries;
 create policy "guestbook_entries_insert" on public.guestbook_entries
   for insert with check (auth.uid() = user_id);
 
--- owner (GitHub username jizzy002) or the author can delete
+-- A trusted app_metadata claim marks the moderator; user_metadata is user-editable.
 drop policy if exists "guestbook_entries_delete" on public.guestbook_entries;
 create policy "guestbook_entries_delete" on public.guestbook_entries
   for delete using (
     auth.uid() = user_id
-    or auth.jwt() -> 'user_metadata' ->> 'user_name' = 'jizzy002'
+    or auth.jwt() -> 'app_metadata' ->> 'guestbook_owner' = 'true'
   );
 
 -- anyone can read reactions
@@ -125,3 +129,21 @@ drop trigger if exists guestbook_entries_before_insert on public.guestbook_entri
 create trigger guestbook_entries_before_insert
   before insert on public.guestbook_entries
   for each row execute function public.enforce_guestbook_entry_policy();
+
+-- Return only the current user's note count; never expose profile_email.
+create or replace function public.guestbook_used_notes()
+returns integer language sql stable security definer
+set search_path = ''
+as $$
+  select count(*)::integer
+  from public.guestbook_entries
+  where auth.uid() is not null
+    and (
+      (coalesce(auth.jwt() ->> 'email', '') <> ''
+        and profile_email = auth.jwt() ->> 'email')
+      or (coalesce(auth.jwt() ->> 'email', '') = ''
+        and user_id = auth.uid())
+    );
+$$;
+revoke all on function public.guestbook_used_notes() from public, anon;
+grant execute on function public.guestbook_used_notes() to authenticated;
